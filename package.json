@@ -14,5 +14,6 @@
     "nodemon": "^2.0.5",
     "peer": "^0.5.3",
     "socket.io": "^2.3.0"
-  }
+  },
+  "devDependencies": {}
 }
