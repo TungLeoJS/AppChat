@@ -2,7 +2,12 @@ const express = require("express");
 const app = express();
 const server = require("http").Server(app);
 const io = require("socket.io")(server);
+const {ExpressPeerServer} = require('peer');
+const peerServer = ExpressPeerServer(server, {
+  debug: true
+});
 
+app.use('/peerjs', peerServer);
 app.set("views", "./views");
 app.set("view engine", "ejs");
 app.use(express.static("public"));
@@ -12,6 +17,7 @@ const rooms = {};
 
 app.get("/", (req, res) => {
   res.render("index", { rooms: rooms });
+  
 });
 
 app.get("/:room", (req, res) => {
@@ -29,8 +35,6 @@ app.post("/room", (req, res) => {
   res.redirect(req.body.room);
   io.emit("room-created", req.body.room);
 });
-
-server.listen(3000);
 
 io.on("connection", (socket) => {
   socket.on("send-chat-message", (room, message) => {
@@ -62,3 +66,5 @@ function getUserRooms(socket) {
     return names;
   }, []);
 }
+
+server.listen(process.env.PORT || 3000);
