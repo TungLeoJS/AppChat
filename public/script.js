@@ -1,14 +1,16 @@
 const socket = io("/");
-const messageForm = document.getElementById("send-container");
-const messageInput = document.getElementById("message-input");
-const messageContainer = document.getElementById("message-container");
-const roomContainer = document.getElementById("room-container");
-const videoGrid = document.getElementById('video-grid');
 const myPeer = new Peer(undefined, {
   path: '/peerjs',
   host: '/',
   port: '443'
 })
+const messageForm = document.getElementById("send-container");
+const messageInput = document.getElementById("message-input");
+const messageContainer = document.getElementById("message-container");
+const roomContainer = document.getElementById("room-container");
+const videoGrid = document.getElementById('video-grid');
+
+
 
 myPeer.on('open', id => {
   socket.emit('new-user', roomName, id)
