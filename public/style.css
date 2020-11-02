@@ -105,3 +105,25 @@
 #message-container{
     color: white;
 }
+
+.main__videos {
+    flex-grow: 1;
+    background-color: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+}
+
+#video-grid{
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+ }
+ 
+ video{
+    height: 300px;
+    width: 400px;
+    object-fit: cover;
+    padding: 8px;
+ }
