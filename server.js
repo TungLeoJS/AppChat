@@ -47,9 +47,6 @@ io.on("connection", (socket) => {
     socket.join(room);
     rooms[room].users[socket.id] = name;
     socket.to(room).broadcast.emit("user-connected", name, userId);
-    console.log(rooms);
-    console.log(`socketid ${socket.id}`);
-    console.log(`name: ${name}`);
     console.log(`peerid: ${userId}`);
 
     socket.on("disconnect", () => {
@@ -62,6 +59,7 @@ io.on("connection", (socket) => {
             userId
           );
         delete rooms[room].users[socket.id];
+        console.log(userId)
       });
     });
   });

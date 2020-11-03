@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" />
     <title>Chat app</title>
-    <script defer src="http://localhost:3000/socket.io/socket.io.js"></script>
-    <script defer src="./script.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
     <link href="style.css" rel="stylesheet" >
   </head>
   <body>
@@ -20,5 +20,6 @@
       <input type="text" name="room" required />
       <button type="submit">New Room</button>
     </form>
+    <script src="script.js" defer></script>
   </body>
 </html>
