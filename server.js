@@ -48,7 +48,7 @@ io.on("connection", (socket) => {
     rooms[room].users[socket.id] = name;
     socket.to(room).broadcast.emit("user-connected", name, userId);
     console.log(`peerid: ${userId}`);
-
+    console.log(rooms)
     socket.on("disconnect", () => {
       getUserRooms(socket).forEach((room) => {
         socket

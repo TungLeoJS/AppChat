@@ -119,11 +119,18 @@
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
+    height: 400px;
  }
  
- video{
+ #video-grid video{
     height: 300px;
     width: 400px;
     object-fit: cover;
     padding: 8px;
+    position:relative;
+    z-index:0;
+ }
+
+ #video-grid p{
+    color: #f9f5f5;
  }

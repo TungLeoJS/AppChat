@@ -9,10 +9,9 @@ const myPeer = new Peer(undefined, {
   port: "3000",
   path: "/peerjs",
 });
-
-if (messageForm != null) {
   messageAppend("You joined");
   const name = prompt("What is your name?");
+if (messageForm != null) {
   myPeer.on("open", (id) => {
     socket.emit("new-user", roomName, name, id);
   });
@@ -35,11 +34,15 @@ const peers = {};
 navigator.mediaDevices
   .getUserMedia({
     video: true,
-    audio: true,
+    audio: false
   })
   .then((stream) => {
-    myVideoStream = stream;
-    addVideoStream(myVideo, stream);
+    const overlay = document.createElement('div')
+    overlay.setAttribute("class","overlay")
+    const userName = document.createElement('p')
+    userName.innerHTML = `${name}`
+    overlay.append(userName)
+    addVideoStream(myVideo, stream, overlay);
     myPeer.on("call", (call) => {
       call.answer(stream);
       const video = document.createElement("video");
@@ -50,7 +53,7 @@ navigator.mediaDevices
     socket.on("user-connected", (name, userId) => {
       messageAppend(`${name} has connected`);
       setTimeout(() => {
-        connectToNewUser(userId, stream);
+        connectToNewUser(userId, stream, name);
       }, 2000);
     });
   });
@@ -78,19 +81,23 @@ function messageAppend(message) {
   messageContainer.append(messageElement);
 }
 
-function addVideoStream(video, stream) {
+
+function addVideoStream(video, stream, name) {
   video.srcObject = stream;
   video.addEventListener("loadedmetadata", () => {
     video.play();
   });
   videoGrid.append(video);
+  videoGrid.append(name);
 }
 
-function connectToNewUser(userId, stream) {
+function connectToNewUser(userId, stream, name) {
   const call = myPeer.call(userId, stream);
   const video = document.createElement("video");
+  const userName = document.createElement('p')
+  userName.innerHTML = `${name}`
   call.on("stream", (userVideoStream) => {
-    addVideoStream(video, userVideoStream);
+    addVideoStream(video, userVideoStream, userName);
   });
   call.on("close", () => {
     video.remove();
