@@ -62,6 +62,19 @@ io.on("connection", (socket) => {
         console.log(userId)
       });
     });
+    socket.on("leave", (userId) => {
+      getUserRooms(socket).forEach((room) => {
+        socket
+          .to(room)
+          .broadcast.emit(
+            "user-leave",
+            rooms[room].users[socket.id],
+            userId
+          );
+        delete rooms[room].users[userId];
+        console.log(userId)
+      });
+    });
   });
 });
 

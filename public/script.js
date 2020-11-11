@@ -46,7 +46,13 @@ navigator.mediaDevices
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
         console.log(myPeer)
+        console.log(call)
       });
+      call.on("close", () => {
+        video.remove();
+        console.log("closed");
+      });
+      peers[call.peer] = call;
     });
     socket.on("user-connected", (name, userId) => {
       messageAppend(`${name} has connected`);
@@ -59,6 +65,8 @@ navigator.mediaDevices
 socket.on("user-disconnected", (name, userId) => {
   messageAppend(`${name} has disconnected`);
   if (peers[userId]) peers[userId].close();
+  console.log(`${name} disconnected`)
+  console.log(`${userId} disconnected`)
 });
 
 socket.on("chat-message", (data) => {
@@ -160,3 +168,15 @@ const html = `
 `
 document.querySelector('.main__video_button').innerHTML = html;
 }
+
+const leave = () =>{
+  const userId = myPeer.id
+  socket.emit('leave', userId)
+  document.location.href = '/'
+}
+socket.on("user-leave", (name, userId) => {
+  messageAppend(`${name} has disconnected`)
+  if (peers[userId]) peers[userId].close();
+})
+
+document.getElementById('main__controls__button').addEventListener("click", leave)
