@@ -4,13 +4,18 @@ const messageInput = document.getElementById("message-input");
 const messageContainer = document.getElementById("message-container");
 const roomContainer = document.getElementById("room-container");
 const videoGrid = document.getElementById("video-grid");
+const leaveButton = document.getElementById("leave-button");
+const showChat = document.getElementById("show-chat");
+const mainLeft = document.getElementById("main__left");
+const mainRight = document.getElementById("main__right");
+
 const myPeer = new Peer(undefined, {
   host: "/",
   port: "3000",
   path: "/peerjs",
 });
-  messageAppend("You joined");
-  const name = prompt("What is your name?");
+messageAppend("You joined");
+const name = prompt("What is your name?");
 if (messageForm != null) {
   myPeer.on("open", (id) => {
     socket.emit("new-user", roomName, name, id);
@@ -34,19 +39,18 @@ const peers = {};
 navigator.mediaDevices
   .getUserMedia({
     video: true,
-    audio: true
+    audio: true,
   })
-  .then((stream) => 
-  {
-    myVideoStream = stream
+  .then((stream) => {
+    myVideoStream = stream;
     addVideoStream(myVideo, stream);
     myPeer.on("call", (call) => {
       call.answer(stream);
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
-        console.log(myPeer)
-        console.log(call)
+        console.log(myPeer);
+        console.log(call);
       });
       call.on("close", () => {
         video.remove();
@@ -65,8 +69,8 @@ navigator.mediaDevices
 socket.on("user-disconnected", (name, userId) => {
   messageAppend(`${name} has disconnected`);
   if (peers[userId]) peers[userId].close();
-  console.log(`${name} disconnected`)
-  console.log(`${userId} disconnected`)
+  console.log(`${name} disconnected`);
+  console.log(`${userId} disconnected`);
 });
 
 socket.on("chat-message", (data) => {
@@ -86,7 +90,6 @@ function messageAppend(message) {
   messageElement.innerText = message;
   messageContainer.append(messageElement);
 }
-
 
 function addVideoStream(video, stream) {
   video.srcObject = stream;
@@ -110,73 +113,82 @@ function connectToNewUser(userId, stream) {
 }
 
 const scrollToBottom = () => {
-var d = $('.main__chat_window');
-d.scrollTop(d.prop("scrollHeight"));
-}
+  var d = $(".main__chat_window");
+  d.scrollTop(d.prop("scrollHeight"));
+};
 
 const muteUnmute = () => {
-const enabled = myVideoStream.getAudioTracks()[0].enabled;
-if (enabled) {
-  myVideoStream.getAudioTracks()[0].enabled = false;
-  setUnmuteButton();
-} else {
-  setMuteButton();
-  myVideoStream.getAudioTracks()[0].enabled = true;
-}
-}
+  const enabled = myVideoStream.getAudioTracks()[0].enabled;
+  if (enabled) {
+    myVideoStream.getAudioTracks()[0].enabled = false;
+    setUnmuteButton();
+  } else {
+    setMuteButton();
+    myVideoStream.getAudioTracks()[0].enabled = true;
+  }
+};
 
 const playStop = () => {
-console.log('object')
-let enabled = myVideoStream.getVideoTracks()[0].enabled;
-if (enabled) {
-  myVideoStream.getVideoTracks()[0].enabled = false;
-  setPlayVideo()
-} else {
-  setStopVideo()
-  myVideoStream.getVideoTracks()[0].enabled = true;
-}
-}
+  console.log("object");
+  let enabled = myVideoStream.getVideoTracks()[0].enabled;
+  if (enabled) {
+    myVideoStream.getVideoTracks()[0].enabled = false;
+    setPlayVideo();
+  } else {
+    setStopVideo();
+    myVideoStream.getVideoTracks()[0].enabled = true;
+  }
+};
 
 const setMuteButton = () => {
-const html = `
+  const html = `
   <i class="fas fa-microphone"></i>
   <span>Mute</span>
-`
-document.querySelector('.main__mute_button').innerHTML = html;
-}
+`;
+  document.querySelector(".main__mute_button").innerHTML = html;
+};
 
 const setUnmuteButton = () => {
-const html = `
+  const html = `
   <i class="unmute fas fa-microphone-slash"></i>
   <span>Unmute</span>
-`
-document.querySelector('.main__mute_button').innerHTML = html;
-}
+`;
+  document.querySelector(".main__mute_button").innerHTML = html;
+};
 
 const setStopVideo = () => {
-const html = `
+  const html = `
   <i class="fas fa-video"></i>
   <span>Stop Video</span>
-`
-document.querySelector('.main__video_button').innerHTML = html;
-}
+`;
+  document.querySelector(".main__video_button").innerHTML = html;
+};
 
 const setPlayVideo = () => {
-const html = `
+  const html = `
 <i class="stop fas fa-video-slash"></i>
   <span>Play Video</span>
-`
-document.querySelector('.main__video_button').innerHTML = html;
-}
+`;
+  document.querySelector(".main__video_button").innerHTML = html;
+};
 
-const leave = () =>{
-  const userId = myPeer.id
-  socket.emit('leave', userId)
-  document.location.href = '/'
-}
+showChat.addEventListener("click", () => {
+  if (mainRight.style.display != "none") {
+    mainLeft.style.flex = "1";
+    mainRight.style.display = "none";
+  } else {
+    mainLeft.style.flex = "0.79";
+    mainRight.style.display = "flex";
+  }
+});
+
+leaveButton.addEventListener("click", () => {
+  const userId = myPeer.id;
+  socket.emit("leave", userId);
+  document.location.href = "/";
+});
+
 socket.on("user-leave", (name, userId) => {
-  messageAppend(`${name} has disconnected`)
+  messageAppend(`${name} has disconnected`);
   if (peers[userId]) peers[userId].close();
-})
-
-document.getElementById('main__controls__button').addEventListener("click", leave)
+});
