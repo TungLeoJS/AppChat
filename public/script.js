@@ -14,13 +14,6 @@ const myPeer = new Peer(undefined, {
   port: "3000",
   path: "/peerjs",
 });
-messageAppend("You joined");
-const name = prompt("What is your name?");
-if (messageForm != null) {
-  myPeer.on("open", (id) => {
-    socket.emit("new-user", roomName, name, id);
-  });
-}
 
 socket.on("room-created", (room) => {
   const roomElement = document.createElement("div");
@@ -31,6 +24,14 @@ socket.on("room-created", (room) => {
   roomContainer.append(roomElement);
   roomContainer.append(roomLink);
 });
+
+messageAppend("You joined");
+const name = prompt("What is your name?");
+if (messageForm != null) {
+  myPeer.on("open", (id) => {
+    socket.emit("new-user", roomName, name, id);
+  });
+}
 
 const myVideo = document.createElement("video");
 myVideo.muted = true;
@@ -186,9 +187,9 @@ leaveButton.addEventListener("click", () => {
   const userId = myPeer.id;
   socket.emit("leave", userId);
   document.location.href = "/";
+  alert("You have leaved the room");
 });
 
 socket.on("user-leave", (name, userId) => {
-  messageAppend(`${name} has disconnected`);
   if (peers[userId]) peers[userId].close();
 });
