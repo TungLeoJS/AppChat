@@ -20,18 +20,23 @@ app.get("/", (req, res) => {
 });
 
 app.get("/:room", (req, res) => {
-  if (rooms[req.body.room] != null) {
-    return res.redirect("/");
+  if (rooms[req.params.room] != null) {
+    res.render("room", { roomName: req.params.room });
+  } else {
+    io.emit("room-not-existed", req.params.room);
+    res.redirect("/");
   }
-  res.render("room", { roomName: req.params.room });
+
+  console.log(rooms[req.params.room]);
 });
 
 app.post("/room", (req, res) => {
   if (rooms[req.body.room] != null) {
-    return res.redirect("/");
+    io.emit("room-existed", req.body.room);
+    res.redirect("/");
   }
   rooms[req.body.room] = { users: {} };
-  res.redirect(req.body.room);
+  // res.redirect(req.body.room);
   io.emit("room-created", req.body.room);
 });
 
@@ -48,7 +53,7 @@ io.on("connection", (socket) => {
     rooms[room].users[socket.id] = name;
     socket.to(room).emit("user-connected", name, userId);
     console.log(`peerid: ${userId}`);
-    console.log(rooms)
+    console.log(rooms);
     socket.on("disconnect", () => {
       getUserRooms(socket).forEach((room) => {
         socket
@@ -59,20 +64,16 @@ io.on("connection", (socket) => {
             userId
           );
         delete rooms[room].users[socket.id];
-        console.log(userId)
+        console.log(userId);
       });
     });
     socket.on("leave", (userId) => {
       getUserRooms(socket).forEach((room) => {
         socket
           .to(room)
-          .broadcast.emit(
-            "user-leave",
-            rooms[room].users[socket.id],
-            userId
-          );
+          .broadcast.emit("user-leave", rooms[room].users[socket.id], userId);
         delete rooms[room].users[userId];
-        console.log(userId)
+        console.log(userId);
       });
     });
   });

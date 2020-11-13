@@ -14,6 +14,8 @@ const myPeer = new Peer(undefined, {
   port: "3000",
   path: "/peerjs",
 });
+const peers = [];
+const peersObject = {};
 
 socket.on("room-created", (room) => {
   const roomElement = document.createElement("div");
@@ -25,18 +27,31 @@ socket.on("room-created", (room) => {
   roomContainer.append(roomLink);
 });
 
+socket.on("room-existed", (room) => {
+  alert(`Room ${room} has existed!`);
+});
+
+socket.on("room-not-existed", (room) => {
+  alert(`Room ${room} does not existed, please create Room before Joining!`);
+});
+
 messageAppend("You joined");
-const name = prompt("What is your name?");
 if (messageForm != null) {
-  myPeer.on("open", (id) => {
-    socket.emit("new-user", roomName, name, id);
-  });
+  const name = prompt("What is your name?");
+  if (name == "") {
+    document.location.href = "/";
+    alert("Please enter your name !");
+  } else {
+    myPeer.on("open", (id) => {
+      socket.emit("new-user", roomName, name, id);
+    });
+  }
 }
 
 const myVideo = document.createElement("video");
 myVideo.muted = true;
 let myVideoStream;
-const peers = {};
+
 navigator.mediaDevices
   .getUserMedia({
     video: true,
@@ -50,8 +65,6 @@ navigator.mediaDevices
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
-        console.log(myPeer);
-        console.log(call);
       });
       call.on("close", () => {
         video.remove();
@@ -71,7 +84,6 @@ socket.on("user-disconnected", (name, userId) => {
   messageAppend(`${name} has disconnected`);
   if (peers[userId]) peers[userId].close();
   console.log(`${name} disconnected`);
-  console.log(`${userId} disconnected`);
 });
 
 socket.on("chat-message", (data) => {
@@ -190,6 +202,7 @@ leaveButton.addEventListener("click", () => {
   alert("You have leaved the room");
 });
 
-socket.on("user-leave", (name, userId) => {
+socket.on("user-leave", (userId) => {
   if (peers[userId]) peers[userId].close();
 });
+console.log(myPeer);
