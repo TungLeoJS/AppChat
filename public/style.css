@@ -1,6 +1,6 @@
 .main {
-  height: 100vh;
   display: flex;
+  min-height: 100vh;
 }
 
 .main__left {
@@ -11,6 +11,8 @@
 
 .main__right {
   flex: 0.21;
+  display: flex;
+  flex-direction: column;
 }
 
 .main__videos {
@@ -40,6 +42,7 @@
 
 .main__controls__block {
   display: flex;
+  transform: translate(0, 0);
 }
 
 .main__controls__button {
@@ -59,11 +62,6 @@
 
 .main__controls__button i {
   font-size: 24px;
-}
-
-.main__right {
-  display: flex;
-  flex-direction: column;
 }
 
 .main__header {
@@ -121,15 +119,13 @@
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  height: 400px;
 }
 
 #video-grid video {
+  display: block;
   height: 300px;
   width: 400px;
-  object-fit: cover;
   padding: 8px;
-  position: relative;
   z-index: 0;
   border-radius: 30px;
   box-shadow: 0px 0px 0px 2px #f5f5f5 inset;
@@ -140,59 +136,45 @@
   color: #f9f5f5;
 }
 
-.main__controls__block__leave {
-  display: flex;
-  margin-top: 60px;
-  margin-left: 20px;
-}
-
 .main__controls__button__leave {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 8px 10px;
-  min-width: 80px;
+  min-width: 50px;
   cursor: pointer;
-}
-
-.wrapper {
-  display: flex;
-  position: fixed;
-  transform: translate(-50%, -50%);
-}
-
-.link_wrapper {
-  display: flex;
   position: relative;
+  margin-right: 35px;
+  background: transparent;
 }
 
-.link_wrapper a {
+.main__controls__button__leave a {
   display: block;
-  width: 150px;
-  height: 60px;
+  width: 250px;
+  height: 50px;
   line-height: 50px;
   font-weight: bold;
   text-decoration: none;
-  background: #1c1e20;
+  background: transparent;
   text-align: center;
   color: #fff;
   text-transform: uppercase;
   letter-spacing: 1px;
   border: 3px solid #333;
   transition: all 0.35s;
+  position: relative;
 }
 
 .icon {
-  margin-top: 5px;
-  width: 45px;
-  height: 45px;
+  margin-top: 15px;
+  width: 40px;
+  height: 40px;
   border: 3px solid transparent;
   position: absolute;
   transform: rotate(45deg);
-  right: 0;
+  right: 5%;
   top: 0;
-  z-index: -1;
   transition: all 0.35s;
 }
 
@@ -202,18 +184,29 @@
   top: calc(50% - 15px);
   left: calc(50% - 15px);
   transform: rotate(-45deg);
-  fill: #ff0000;
   transition: all 0.35s;
+  fill: #1c1e20;
 }
 
-.link_wrapper a:hover {
+a:hover {
   width: 200px;
   border: 3px solid #ff0000;
   background: transparent;
   color: #ff0000;
 }
 
-.link_wrapper a:hover + .icon {
+a:hover + .icon {
   border: 3px solid #ff0000;
-  right: -20%;
+  right: -15%;
+}
+
+a:hover + .icon svg {
+  width: 30px;
+  position: absolute;
+  top: calc(50% - 15px);
+  left: calc(50% - 15px);
+  transform: rotate(-45deg);
+  fill: #ff0000;
+  transition: all 0.35s;
+  display: inline;
 }
