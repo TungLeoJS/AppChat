@@ -20,7 +20,6 @@ app.get("/", (req, res) => {
 });
 
 app.get("/:room", (req, res) => {
-  console.log(req.params.room)
   if (rooms[req.params.room] != null) {
     res.render("room", { roomName: req.params.room });
   } else {
@@ -50,7 +49,9 @@ io.on("connection", (socket) => {
   socket.on("new-user", (room, name, userId) => {
     socket.join(room);
     rooms[room].users[socket.id] = name;
-    socket.to(room).emit("user-connected", name, userId);
+    rooms[room].users[userId] = name;
+    socket.to(room).broadcast.emit("user-connected", name, userId);
+    console.log(rooms)
     socket.on("disconnect", () => {
       getUserRooms(socket).forEach((room) => {
         socket

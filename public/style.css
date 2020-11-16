@@ -10,7 +10,7 @@ body {
 }
 
 .body {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -50,12 +50,12 @@ header {
   text-align: center;
   font-size: 1.25rem;
   transition: border-bottom-color 0.3s ease-in-out;
-  caret-color: #56BC58;
+  caret-color: #56bc58;
 }
 
 .input:focus {
   outline: none;
-  border-bottom-color: #56BC58;
+  border-bottom-color: #56bc58;
 }
 
 .input::placeholder {
@@ -69,7 +69,7 @@ header {
   font-size: 1.15rem;
   color: #262626;
   border: none;
-  background-color: #56BC58;
+  background-color: #56bc58;
   padding: 0.75em 1.25rem;
   box-shadow: 3px 3px 0 0 #ffffff;
   transition: box-shadow 0.2s ease-in-out;
@@ -86,7 +86,6 @@ header {
 .created a {
   color: inherit;
 }
-
 
 .main {
   display: flex;
@@ -299,4 +298,82 @@ a:hover + .icon svg {
   fill: #ff0000;
   transition: all 0.35s;
   display: inline;
+}
+
+@import url(https://fonts.googleapis.com/css?family=Lato);
+body {
+  font-family: "Lato", sans-serif;
+  background: #111;
+  color: #fff;
+}
+
+ul {
+  width: 300px;
+  position: absolute;
+  left: 50%;
+  margin-top: 25px;
+  margin-left: -150px;
+}
+
+li {
+  position: relative;
+  display: block;
+  border: 2px solid #0a670e;
+  margin-bottom: 5px;
+  padding: 10px;
+  text-align: center;
+  text-transform: uppercase;
+  -webkit-animation: fadeIn 0.5s linear;
+  animation: fadeIn 0.5s linear;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+li:nth-child(1) {
+  -webkit-animation-delay: 0.25s;
+  animation-delay: 0.25s;
+}
+
+li:nth-child(2) {
+  -webkit-animation-delay: 0.5s;
+  animation-delay: 0.5s;
+}
+
+li:nth-child(3) {
+  -webkit-animation-delay: 0.75s;
+  animation-delay: 0.75s;
+}
+
+li:nth-child(4) {
+  -webkit-animation-delay: 1s;
+  animation-delay: 1s;
+}
+
+li:nth-child(5) {
+  -webkit-animation-delay: 1.25s;
+  animation-delay: 1.25s;
+}
+
+@-webkit-keyframes fadeIn {
+  0% {
+    opacity: 0;
+    top: 100px;
+  }
+  75% {
+    opacity: 0.5;
+    top: 0px;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+#room-container input {
+  height: 40px;
+  width: 280px;
+  border: none;
+  outline: none;
+  background-color: #56bc58;
+  font-size: 24px;
+  text-transform: uppercase;
 }

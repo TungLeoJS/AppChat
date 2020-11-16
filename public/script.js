@@ -8,14 +8,25 @@ const leaveButton = document.getElementById("leave-button");
 const showChat = document.getElementById("show-chat");
 const mainLeft = document.getElementById("main__left");
 const mainRight = document.getElementById("main__right");
+const joinRoom=document.querySelectorAll(".roomNameList");
 
 const myPeer = new Peer(undefined, {
   host: "/",
   port: "3000",
   path: "/peerjs",
 });
-const peers = [];
-const peersObject = {};
+const peers = {};
+const rooms = {};
+
+for(let i=0; i<joinRoom.length; i++){
+  rooms[i] = joinRoom[i].value;
+  joinRoom[i].addEventListener("mouseover", ()=> {
+    joinRoom[i].value = "join";
+  })
+  joinRoom[i].addEventListener("mouseout", ()=> {
+    joinRoom[i].value = rooms[i]
+  })
+}
 
 socket.on("room-created", (room) => {
   const roomElement = document.createElement("div");
@@ -44,6 +55,7 @@ if (messageForm != null) {
   } else {
     myPeer.on("open", (id) => {
       socket.emit("new-user", roomName, name, id);
+      peers[name] = id
     });
   }
 }
@@ -61,10 +73,17 @@ navigator.mediaDevices
     myVideoStream = stream;
     addVideoStream(myVideo, stream);
     myPeer.on("call", (call) => {
+      const callerName = call.metadata.callerName
+      // console.log(callerName)
+      console.log(call.peer)
+      peers[callerName] = call.peer
+      console.log(peers)
+      
       call.answer(stream);
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
+        // console.log(peers)
       });
       call.on("close", () => {
         video.remove();
@@ -73,7 +92,10 @@ navigator.mediaDevices
       peers[call.peer] = call;
     });
     socket.on("user-connected", (name, userId) => {
+      console.log(peers)
+      peers[name] = userId
       messageAppend(`${name} has connected`);
+      console.log(peers)
       setTimeout(() => {
         connectToNewUser(userId, stream);
       }, 2000);
@@ -113,8 +135,10 @@ function addVideoStream(video, stream) {
 }
 
 function connectToNewUser(userId, stream) {
-  const call = myPeer.call(userId, stream);
+  const callerName = Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]
+  const call = myPeer.call(userId, stream,{metadata:{callerName: callerName} } );
   const video = document.createElement("video");
+  console.log(callerName)
   call.on("stream", (userVideoStream) => {
     addVideoStream(video, userVideoStream);
   });
@@ -122,7 +146,6 @@ function connectToNewUser(userId, stream) {
     video.remove();
     console.log("closed");
   });
-  peers[userId] = call;
 }
 
 const scrollToBottom = () => {
@@ -206,3 +229,12 @@ socket.on("user-leave", (userId) => {
   if (peers[userId]) peers[userId].close();
 });
 console.log(myPeer);
+
+
+Object.size = obj => {
+  var size = 0, key;
+  for(key in obj){
+    if(obj.hasOwnProperty(key)) size++;
+  }
+  return size;
+}
