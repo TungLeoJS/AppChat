@@ -1,3 +1,93 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+.body {
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #262626;
+}
+
+header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.logo {
+  max-width: 90%;
+  image-rendering: -moz-crisp-edges;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.input,
+.create {
+  margin: 1rem 0;
+  max-width: 100%;
+}
+
+.input {
+  font-family: inherit;
+  padding-bottom: 1rem;
+  background: none;
+  border: none;
+  color: #ffffff;
+  border-bottom: 2px solid #ffffff;
+  text-align: center;
+  font-size: 1.25rem;
+  transition: border-bottom-color 0.3s ease-in-out;
+  caret-color: #56BC58;
+}
+
+.input:focus {
+  outline: none;
+  border-bottom-color: #56BC58;
+}
+
+.input::placeholder {
+  color: #ffffff;
+  opacity: 0.7;
+}
+
+.create {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1.15rem;
+  color: #262626;
+  border: none;
+  background-color: #56BC58;
+  padding: 0.75em 1.25rem;
+  box-shadow: 3px 3px 0 0 #ffffff;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.create:hover {
+  box-shadow: 0 0 0 0 #ffffff;
+}
+
+.created {
+  color: #ffffff;
+}
+
+.created a {
+  color: inherit;
+}
+
+
 .main {
   display: flex;
   min-height: 100vh;
@@ -188,7 +278,7 @@
   fill: #1c1e20;
 }
 
-a:hover {
+.main__controls__button__leave a:hover {
   width: 200px;
   border: 3px solid #ff0000;
   background: transparent;

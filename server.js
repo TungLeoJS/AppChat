@@ -20,14 +20,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/:room", (req, res) => {
+  console.log(req.params.room)
   if (rooms[req.params.room] != null) {
     res.render("room", { roomName: req.params.room });
   } else {
     io.emit("room-not-existed", req.params.room);
     res.redirect("/");
   }
-
-  console.log(rooms[req.params.room]);
 });
 
 app.post("/room", (req, res) => {
@@ -36,7 +35,7 @@ app.post("/room", (req, res) => {
     res.redirect("/");
   }
   rooms[req.body.room] = { users: {} };
-  // res.redirect(req.body.room);
+  res.redirect("/");
   io.emit("room-created", req.body.room);
 });
 
@@ -52,8 +51,6 @@ io.on("connection", (socket) => {
     socket.join(room);
     rooms[room].users[socket.id] = name;
     socket.to(room).emit("user-connected", name, userId);
-    console.log(`peerid: ${userId}`);
-    console.log(rooms);
     socket.on("disconnect", () => {
       getUserRooms(socket).forEach((room) => {
         socket
