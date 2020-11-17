@@ -24,14 +24,12 @@ app.get("/:room", (req, res) => {
   if (rooms[req.params.room] != null) {
     res.render("room", { roomName: req.params.room });
   } else {
-    io.emit("room-not-existed", req.params.room);
     res.redirect("/");
   }
 });
 
 app.post("/room", (req, res) => {
   if (rooms[req.body.room] != null) {
-    io.emit("room-existed", req.body.room);
     res.redirect("/");
   }
   rooms[req.body.room] = { users: {} };
