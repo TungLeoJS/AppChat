@@ -22,12 +22,12 @@
         </form>
       </div>
       <ul id="room-container">
-          <% Object.keys(rooms).forEach(room => { %>
-            <li>
-            <form  action="/<%= room %>">
-              <input class="roomNameList" type="submit" value= "<%= room %>" />
-             </form>
-            <% }) %>
+        <% Object.keys(rooms).forEach(room => { %>
+        <li>
+          <form  action="/<%= room %>" style="display: inline">
+            <input class="roomNameList" type="submit" value= "<%= room %>" />
+          </form>
+          <% }) %>
         </li>
       </ul>
     </main>
