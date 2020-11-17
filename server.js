@@ -12,6 +12,7 @@ app.set("views", "./views");
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(__dirname +'/public'))
 
 const rooms = {};
 
@@ -49,7 +50,6 @@ io.on("connection", (socket) => {
   socket.on("new-user", (room, name, userId) => {
     socket.join(room);
     rooms[room].users[socket.id] = name;
-    rooms[room].users[userId] = name;
     socket.to(room).broadcast.emit("user-connected", name, userId);
     console.log(rooms)
     socket.on("disconnect", () => {
@@ -62,16 +62,7 @@ io.on("connection", (socket) => {
             userId
           );
         delete rooms[room].users[socket.id];
-        console.log(userId);
-      });
-    });
-    socket.on("leave", (userId) => {
-      getUserRooms(socket).forEach((room) => {
-        socket
-          .to(room)
-          .broadcast.emit("user-leave", rooms[room].users[socket.id], userId);
-        delete rooms[room].users[userId];
-        console.log(userId);
+        console.log(rooms);
       });
     });
   });
