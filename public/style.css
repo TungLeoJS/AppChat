@@ -377,3 +377,13 @@ li:nth-child(5) {
   text-transform: uppercase;
   text-align: center;
 }
+
+.roomName{
+  width: 210px;
+  display: inline-block;
+}
+
+.delete{
+  width: 60px;
+  display: inline-block;
+}
