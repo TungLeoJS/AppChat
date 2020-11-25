@@ -6,51 +6,32 @@ const { ExpressPeerServer } = require("peer");
 const peerServer = ExpressPeerServer(server, {
   debug: true,
 });
-const { v4: uuidV4 } = require('uuid')
+const { v4: uuidV4 } = require("uuid");
 
 app.use("/peerjs", peerServer);
 app.set("views", "./views");
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(__dirname +'/public'))
+app.use(express.static(__dirname + "/public"));
 
 const rooms = {};
 
 app.get("/", (req, res) => {
-   res.render("index", { rooms: rooms });
+  res.render("index", { rooms: rooms });
 });
 
 app.get("/:room", (req, res) => {
   if (rooms[req.params.room] != null) {
     res.render("room", { roomName: req.params.room });
   } else {
-    console.log("Room not existed")
-    res.redirect("/");
+    res.render("room", { roomName: req.params.room });
+    rooms[req.params.room] = { users: {} };
   }
 });
 
-
 app.post("/room", (req, res) => {
-  const roomArr = Object.keys(rooms);
-  if (rooms[req.body.room] != null) {
-    res.redirect("/");
-  }else if(roomArr.length >= 5){
-    for(var member in rooms){
-      delete rooms[member]
-    }
-    for(var member in roomArr){
-      delete roomArr[member]
-    }
-    console.log(`Rooms>5, delete all room`)
-    res.redirect('/')
-  }else{
-  rooms[req.body.room] = { users: {} };
-  res.redirect("/");
-  io.emit("room-created", req.body.room);
-  console.log(rooms)
-  console.log(roomArr.length)
-}
+  res.redirect(`/${uuidV4()}`);
 });
 
 io.on("connection", (socket) => {
@@ -65,7 +46,6 @@ io.on("connection", (socket) => {
     socket.join(room);
     rooms[room].users[socket.id] = name;
     socket.to(room).broadcast.emit("user-connected", name, userId);
-    console.log(rooms)
     socket.on("disconnect", () => {
       getUserRooms(socket).forEach((room) => {
         socket
@@ -76,7 +56,10 @@ io.on("connection", (socket) => {
             userId
           );
         delete rooms[room].users[socket.id];
-        console.log(rooms);
+        const usersArr = Object.keys(rooms[room].users).length;
+        if (usersArr == 0) {
+          delete rooms[room];
+        }
       });
     });
   });

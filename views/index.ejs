@@ -17,21 +17,10 @@
     <main id="app">
       <div class="form" >
         <form class="form" action="/room" method="POST">
-          <input class="input" type="text" name="room" required autocomplete="off"/>
           <button class="create" type="submit">New Room</button>
         </form>
       </div>
-      <ul id="room-container">
-        <% Object.keys(rooms).forEach(room => { %>
-        <li>
-          <form id="form">
-            <input id="roomName" class="roomName" formaction="/<%= room %>" type="submit" value= "<%= room %>" />
-            <input class="delete" type="submit" value="del"/>
-          </form>
-          <% }) %>
-        </li>
-      </ul>
     </main>
-    <script src="indexscript.js" defer></script>
+    <script src="script.js" defer></script>
   </body>
 </html>
