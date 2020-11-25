@@ -6,6 +6,7 @@ const { ExpressPeerServer } = require("peer");
 const peerServer = ExpressPeerServer(server, {
   debug: true,
 });
+const { v4: uuidV4 } = require('uuid')
 
 app.use("/peerjs", peerServer);
 app.set("views", "./views");
@@ -17,7 +18,7 @@ app.use(express.static(__dirname +'/public'))
 const rooms = {};
 
 app.get("/", (req, res) => {
-  res.render("index", { rooms: rooms });
+   res.render("index", { rooms: rooms });
 });
 
 app.get("/:room", (req, res) => {
