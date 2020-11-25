@@ -29,13 +29,27 @@ app.get("/:room", (req, res) => {
   }
 });
 
+
 app.post("/room", (req, res) => {
+  const roomArr = Object.keys(rooms);
   if (rooms[req.body.room] != null) {
     res.redirect("/");
-  }
+  }else if(roomArr.length >= 5){
+    for(var member in rooms){
+      delete rooms[member]
+    }
+    for(var member in roomArr){
+      delete roomArr[member]
+    }
+    console.log(`Rooms>5, delete all room`)
+    res.redirect('/')
+  }else{
   rooms[req.body.room] = { users: {} };
   res.redirect("/");
   io.emit("room-created", req.body.room);
+  console.log(rooms)
+  console.log(roomArr.length)
+}
 });
 
 io.on("connection", (socket) => {
