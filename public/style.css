@@ -308,7 +308,6 @@ body {
 }
 
 ul {
-  width: 300px;
   position: absolute;
   left: 50%;
   margin-top: 25px;
@@ -317,12 +316,12 @@ ul {
 
 li {
   position: relative;
-  display: block;
+  display: inline-block;
+  width: 300px;
   border: 2px solid #0a670e;
   margin-bottom: 5px;
   padding: 10px;
   text-align: center;
-  text-transform: uppercase;
   -webkit-animation: fadeIn 0.5s linear;
   animation: fadeIn 0.5s linear;
   -webkit-animation-fill-mode: both;
@@ -368,12 +367,21 @@ li:nth-child(5) {
   }
 }
 
-#room-container input {
+#room-container input{
   height: 40px;
-  width: 280px;
-  border: none;
   outline: none;
   background-color: #56bc58;
   font-size: 24px;
   text-transform: uppercase;
+  text-align: center;
+}
+
+.roomName{
+  width: 210px;
+  display: inline-block;
+}
+
+.delete{
+  width: 60px;
+  display: inline-block;
 }

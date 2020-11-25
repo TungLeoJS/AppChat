@@ -24,6 +24,7 @@ app.get("/:room", (req, res) => {
   if (rooms[req.params.room] != null) {
     res.render("room", { roomName: req.params.room });
   } else {
+    console.log("Room not existed")
     res.redirect("/");
   }
 });
