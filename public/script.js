@@ -16,6 +16,13 @@ const myPeer = new Peer(undefined, {
 
 const peers = {};
 
+const joinRoom = ()=> {
+  const inviteLinkInput = document.getElementById('invite-link-input')
+  const url = inviteLinkInput.value;
+  document.location.href = url;
+  inviteLinkInput.value = "";
+}
+
 messageAppend("You joined");
 if (messageForm != null) {
   const name = prompt("What is your name?");
@@ -93,9 +100,11 @@ messageForm.addEventListener("submit", (e) => {
 });
 
 function messageAppend(message) {
-  const messageElement = document.createElement("div");
-  messageElement.innerText = message;
-  messageContainer.append(messageElement);
+  if(message != null){
+    const messageElement = document.createElement("div");
+    messageElement.innerText = message;
+    messageContainer.append(messageElement);
+  }
 }
 
 function addVideoStream(video, stream) {
@@ -201,3 +210,14 @@ leaveButton.addEventListener("click", () => {
   document.location.href = "/";
   alert("You have leaved the room");
 });
+
+const Share = () => {
+  var dummy = document.createElement('input'),
+    url = window.location.href;
+  document.body.appendChild(dummy);
+  dummy.value = url;
+  dummy.select();
+  document.execCommand('copy');
+  document.body.removeChild(dummy)
+  alert(` Url Copied to Clipboard,\n Share it with your Friends!\n Url: ${url} `)
+}
