@@ -22,10 +22,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/:room", (req, res) => {
-  if (rooms[req.params.room] != null) {
-    res.render("room", { roomName: req.params.room });
-  } else {
-    res.render("room", { roomName: req.params.room });
+  res.render("room", { roomName: req.params.room });
+  if(rooms[req.params.room] == null){
     rooms[req.params.room] = { users: {} };
   }
 });
@@ -46,6 +44,7 @@ io.on("connection", (socket) => {
     socket.join(room);
     rooms[room].users[socket.id] = name;
     socket.to(room).broadcast.emit("user-connected", name, userId);
+    console.log(rooms)
     socket.on("disconnect", () => {
       getUserRooms(socket).forEach((room) => {
         socket

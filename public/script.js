@@ -10,7 +10,7 @@ const mainRight = document.getElementById("main__right");
 
 const myPeer = new Peer(undefined, {
     host: "/",
-    port: "443",
+    port: "3000",
     path: "/peerjs",
   });
 
@@ -22,7 +22,10 @@ if (messageForm != null) {
   if (name == "") {
     document.location.href = "/";
     alert("Please enter your name !");
-  } else {
+  }else if(name == null){
+    document.location.href = "/"
+    alert("Please enter your name !")
+  }else {
     myPeer.on("open", (id) => {
       socket.emit("new-user", roomName, name, id);
       peers[name] = id;
@@ -82,9 +85,11 @@ socket.on("chat-message", (data) => {
 messageForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const message = messageInput.value;
-  socket.emit("send-chat-message", roomName, message);
-  messageAppend(`You: ${message}`);
-  messageInput.value = "";
+  if(message != ""){
+    socket.emit("send-chat-message", roomName, message);
+    messageAppend(`You: ${message}`);
+    messageInput.value = "";
+  }
 });
 
 function messageAppend(message) {
