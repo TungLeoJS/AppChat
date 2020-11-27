@@ -52,8 +52,8 @@ let myVideoStream;
 
 navigator.mediaDevices
   .getUserMedia({
+    audio: true,
     video: true,
-    audio: false,
   })
   .then((stream) => {
     myVideoStream = stream;
@@ -67,18 +67,14 @@ navigator.mediaDevices
       const callerName = call.metadata.callerName;
       peers[callerName] = call.peer;
       call.answer(stream);
-      setTimeout(() => {
-        addUserName(callerName);
-      }, 0);
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
         setTimeout(() => {
           addVideoStream(video, userVideoStream, callerName);
-        }, 1000);
+        }, 500);
         setTimeout(() => {
           addUserName(callerName);
-        }, 1000);
-
+        }, 500);
         peers[call.peer] = call;
       });
       call.on("close", () => {
@@ -94,10 +90,10 @@ navigator.mediaDevices
       console.log(peers);
       setTimeout(() => {
         connectToNewUser(userId, stream, name);
-      }, 1000);
+      }, 500);
       setTimeout(() => {
         addUserName(name);
-      }, 2000);
+      }, 1000);
     });
   });
 
@@ -165,8 +161,16 @@ const addUserName = (name) => {
   const p = document.createElement("p");
   p.setAttribute("id", `${name}`);
   p.innerHTML = name;
-  const videoGrid2 = document.getElementById(`videogridofuser${name}`);
-  videoGrid2.append(p);
+  const videoGrid2 = document.querySelectorAll(`#videogridofuser${name}`);
+  if (videoGrid2.length > 1) {
+    console.log(videoGrid2);
+    videoGrid2[0].remove();
+    setTimeout(() => {
+      videoGrid2[videoGrid2.length - 1].append(p);
+    }, 0);
+  } else {
+    videoGrid2[0].append(p);
+  }
 };
 
 const removeName = (name) => {
