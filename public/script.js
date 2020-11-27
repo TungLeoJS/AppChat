@@ -16,7 +16,6 @@ const myPeer = new Peer(undefined, {
 });
 
 const peers = {};
-
 const joinRoom = () => {
   const inviteLinkInput = document.getElementById("invite-link-input");
   const url = inviteLinkInput.value;
