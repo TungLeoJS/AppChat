@@ -1,42 +1,48 @@
-const socket = io("/")
+const socket = io("/");
 const messageForm = document.getElementById("send-container");
 const messageInput = document.getElementById("message-input");
 const messageContainer = document.getElementById("message-container");
-const videoGrid = document.getElementById("video-grid");
+const videoGrid = document.querySelector("#video-grid");
 const leaveButton = document.getElementById("leave-button");
 const showChat = document.getElementById("show-chat");
 const mainLeft = document.getElementById("main__left");
 const mainRight = document.getElementById("main__right");
+const mainVideos = document.querySelector(".main__videos");
 
 const myPeer = new Peer(undefined, {
-    host: "/",
-    port: "443",
-    path: "/peerjs",
-  });
+  host: "/",
+  port: "3000",
+  path: "/peerjs",
+});
 
 const peers = {};
 
-const joinRoom = ()=> {
-  const inviteLinkInput = document.getElementById('invite-link-input')
+const joinRoom = () => {
+  const inviteLinkInput = document.getElementById("invite-link-input");
   const url = inviteLinkInput.value;
   document.location.href = url;
   inviteLinkInput.value = "";
-}
+};
 
 messageAppend("You joined");
 if (messageForm != null) {
   const name = prompt("What is your name?");
-  if (name == "") {
-    document.location.href = "/";
-    alert("Please enter your name !");
-  }else if(name == null){
-    document.location.href = "/"
-    alert("Please enter your name !")
-  }else {
+  console.log(peers);
+  if (name != null) {
+    socket.on("username-existed", () => {
+      alert(`UserName has existed, please enter another UserName!`);
+      document.location.href = "/";
+    });
     myPeer.on("open", (id) => {
       socket.emit("new-user", roomName, name, id);
       peers[name] = id;
     });
+  } else if (name == "") {
+    document.location.href = "/";
+    alert("Please enter your name !");
+  } else if (name == null) {
+    document.location.href = "/";
+    alert("Please enter your name !");
   }
 }
 
@@ -47,19 +53,33 @@ let myVideoStream;
 navigator.mediaDevices
   .getUserMedia({
     video: true,
-    audio: true,
+    audio: false,
   })
   .then((stream) => {
     myVideoStream = stream;
-    addVideoStream(myVideo, stream);
+    addVideoStream(
+      myVideo,
+      stream,
+      Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]
+    );
+    addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
-      const callerName = call.metadata.callerName
-      peers[callerName] = call.peer
+      const callerName = call.metadata.callerName;
+      peers[callerName] = call.peer;
       call.answer(stream);
+      setTimeout(() => {
+        addUserName(callerName);
+      }, 0);
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
-        addVideoStream(video, userVideoStream);
-        peers[call.peer] = call
+        setTimeout(() => {
+          addVideoStream(video, userVideoStream, callerName);
+        }, 1000);
+        setTimeout(() => {
+          addUserName(callerName);
+        }, 1000);
+
+        peers[call.peer] = call;
       });
       call.on("close", () => {
         video.remove();
@@ -73,18 +93,22 @@ navigator.mediaDevices
       messageAppend(`${name} has connected`);
       console.log(peers);
       setTimeout(() => {
-        connectToNewUser(userId, stream);
+        connectToNewUser(userId, stream, name);
+      }, 1000);
+      setTimeout(() => {
+        addUserName(name);
       }, 2000);
     });
   });
 
-  socket.on("user-disconnected", (name, userId) => {
-    messageAppend(`${name} has disconnected`);
-    if (peers[userId]) peers[userId].close();
-    delete peers[userId];
-    delete peers[name];
-  });
-  
+socket.on("user-disconnected", (name, userId) => {
+  messageAppend(`${name} has disconnected`);
+  if (peers[userId]) peers[userId].close();
+  delete peers[userId];
+  delete peers[name];
+  removeName(name);
+});
+
 socket.on("chat-message", (data) => {
   messageAppend(`${data.name}: ${data.message}`);
 });
@@ -92,7 +116,7 @@ socket.on("chat-message", (data) => {
 messageForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const message = messageInput.value;
-  if(message != ""){
+  if (message != "") {
     socket.emit("send-chat-message", roomName, message);
     messageAppend(`You: ${message}`);
     messageInput.value = "";
@@ -100,22 +124,25 @@ messageForm.addEventListener("submit", (e) => {
 });
 
 function messageAppend(message) {
-  if(message != null){
+  if (message != null) {
     const messageElement = document.createElement("div");
     messageElement.innerText = message;
     messageContainer.append(messageElement);
   }
 }
 
-function addVideoStream(video, stream) {
+function addVideoStream(video, stream, name) {
   video.srcObject = stream;
   video.addEventListener("loadedmetadata", () => {
     video.play();
   });
-  videoGrid.append(video);
+  const videoGrid2 = document.createElement("div");
+  videoGrid2.setAttribute("id", `videogridofuser${name}`);
+  videoGrid.appendChild(videoGrid2);
+  videoGrid2.append(video);
 }
 
-function connectToNewUser(userId, stream) {
+function connectToNewUser(userId, stream, name) {
   const callerName = Object.keys(peers)[
     Object.values(peers).indexOf(myPeer._id)
   ];
@@ -124,7 +151,7 @@ function connectToNewUser(userId, stream) {
   });
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
-    addVideoStream(video, userVideoStream);
+    addVideoStream(video, userVideoStream, name);
   });
   call.on("close", () => {
     video.remove();
@@ -133,6 +160,19 @@ function connectToNewUser(userId, stream) {
   peers[userId] = call;
   console.log(peers);
 }
+
+const addUserName = (name) => {
+  const p = document.createElement("p");
+  p.setAttribute("id", `${name}`);
+  p.innerHTML = name;
+  const videoGrid2 = document.getElementById(`videogridofuser${name}`);
+  videoGrid2.append(p);
+};
+
+const removeName = (name) => {
+  const a = document.getElementById(`videogridofuser${name}`);
+  a.remove();
+};
 
 const scrollToBottom = () => {
   var d = $(".main__chat_window");
@@ -212,12 +252,14 @@ leaveButton.addEventListener("click", () => {
 });
 
 const Share = () => {
-  var dummy = document.createElement('input'),
+  var dummy = document.createElement("input"),
     url = window.location.href;
   document.body.appendChild(dummy);
   dummy.value = url;
   dummy.select();
-  document.execCommand('copy');
-  document.body.removeChild(dummy)
-  alert(` Url Copied to Clipboard,\n Share it with your Friends!\n Url: ${url} `)
-}
+  document.execCommand("copy");
+  document.body.removeChild(dummy);
+  alert(
+    ` Url Copied to Clipboard,\n Share it with your Friends!\n Url: ${url} `
+  );
+};

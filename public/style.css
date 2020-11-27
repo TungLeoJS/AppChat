@@ -211,6 +211,12 @@ header {
   flex-wrap: wrap;
 }
 
+#videoContainer{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 #video-grid video {
   display: block;
   height: 300px;
@@ -222,8 +228,10 @@ header {
   margin: 5px;
 }
 
+
 #video-grid p {
   color: #f9f5f5;
+  text-align: center;
 }
 
 .main__controls__button__leave {

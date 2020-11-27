@@ -7,6 +7,7 @@ const peerServer = ExpressPeerServer(server, {
   debug: true,
 });
 const { v4: uuidV4 } = require("uuid");
+const { uuid } = require("uuidv4");
 
 app.use("/peerjs", peerServer);
 app.set("views", "./views");
@@ -24,12 +25,13 @@ app.get("/", (req, res) => {
 app.get("/:room", (req, res) => {
   res.render("room", { roomName: req.params.room });
   if(rooms[req.params.room] == null){
-    rooms[req.params.room] = { users: {} };
+    rooms[req.params.room] = { users : {}}
   }
 });
 
 app.post("/room", (req, res) => {
-  res.redirect(`/${uuidV4()}`);
+  res.redirect(`/${uuidV4()}`)
+  
 });
 
 io.on("connection", (socket) => {
@@ -42,9 +44,15 @@ io.on("connection", (socket) => {
 
   socket.on("new-user", (room, name, userId) => {
     socket.join(room);
-    rooms[room].users[socket.id] = name;
-    socket.to(room).broadcast.emit("user-connected", name, userId);
-    console.log(rooms)
+    if(Object.values(rooms[room].users).includes(name) == true){
+      console.log(userId)
+      console.log(rooms)
+      socket.emit("username-existed")
+    }else{
+      rooms[room].users[socket.id] = name;
+      socket.to(room).broadcast.emit("user-connected", name, userId);
+      console.log(rooms)
+    }
     socket.on("disconnect", () => {
       getUserRooms(socket).forEach((room) => {
         socket
