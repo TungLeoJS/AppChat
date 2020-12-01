@@ -11,7 +11,7 @@ const mainVideos = document.querySelector(".main__videos");
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "443",
+  port: "3000",
   path: "/peerjs",
 });
 
@@ -48,6 +48,8 @@ if (messageForm != null) {
 const myVideo = document.createElement("video");
 myVideo.muted = true;
 let myVideoStream;
+var currentPeer = [];
+const senders = [];
 
 navigator.mediaDevices
   .getUserMedia({
@@ -61,9 +63,7 @@ navigator.mediaDevices
       stream,
       Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]
     );
-    // setTimeout(() => {
-    //   addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
-    // }, 500);
+    // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
       const callerName = call.metadata.callerName;
       peers[callerName] = call.peer;
@@ -72,11 +72,13 @@ navigator.mediaDevices
       call.on("stream", (userVideoStream) => {
         setTimeout(() => {
           addVideoStream(video, userVideoStream, callerName);
+          currentPeer.push(call.peerConnection);
+          // console.log(currentPeer)
         }, 500);
-        // setTimeout(() => {
-        //   addUserName(callerName);
-        // }, 500);
-        // peers[call.peer] = call;
+        setTimeout(() => {
+          // addUserName(callerName);
+        }, 500);
+        peers[call.peer] = call;
       });
       call.on("close", () => {
         video.remove();
@@ -92,9 +94,9 @@ navigator.mediaDevices
       setTimeout(() => {
         connectToNewUser(userId, stream, name);
       }, 500);
-      // setTimeout(() => {
-      //   addUserName(name);
-      // }, 1000);
+      setTimeout(() => {
+        // addUserName(name);
+      }, 1000);
     });
   });
 
@@ -103,7 +105,7 @@ socket.on("user-disconnected", (name, userId) => {
   if (peers[userId]) peers[userId].close();
   delete peers[userId];
   delete peers[name];
-  // removeName(name);
+  removeName(name);
 });
 
 socket.on("chat-message", (data) => {
@@ -133,10 +135,12 @@ function addVideoStream(video, stream, name) {
   video.addEventListener("loadedmetadata", () => {
     video.play();
   });
-  // const videoGrid2 = document.createElement("div");
-  // videoGrid2.setAttribute("id", `videogridofuser${name}`);
-  // videoGrid.appendChild(videoGrid2);
-  videoGrid.append(video);
+  
+  const videoGrid2 = document.createElement("div");
+  videoGrid2.setAttribute("id", `videogridofuser${name}`);
+  videoGrid.appendChild(videoGrid2);
+  videoGrid2.append(video);
+  addUserName(name);
 }
 
 function connectToNewUser(userId, stream, name) {
@@ -149,6 +153,8 @@ function connectToNewUser(userId, stream, name) {
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
     addVideoStream(video, userVideoStream, name);
+    currentPeer.push(call.peerConnection);
+    console.log(currentPeer)
   });
   call.on("close", () => {
     video.remove();
@@ -158,26 +164,24 @@ function connectToNewUser(userId, stream, name) {
   console.log(peers);
 }
 
-// const addUserName = (name) => {
-//   const p = document.createElement("p");
-//   p.setAttribute("id", `${name}`);
-//   p.innerHTML = name;
-//   const videoGrid2 = document.querySelectorAll(`#videogridofuser${name}`);
-//   if (videoGrid2.length > 1) {
-//     console.log(videoGrid2);
-//     videoGrid2[0].remove();
-//     setTimeout(() => {
-//       videoGrid2[videoGrid2.length - 1].append(p);
-//     }, 0);
-//   } else {
-//     videoGrid2[0].append(p);
-//   }
-// };
+const addUserName = async (name) => {
+  const p = document.createElement("p");
+  p.setAttribute("id", `${name}`);
+  p.innerHTML = name;
+  const videoGrid2 = document.querySelectorAll(`#videogridofuser${name}`);
+  if (videoGrid2.length > 1) {
+    console.log(videoGrid2);
+    videoGrid2[0].remove()
+    videoGrid2[videoGrid2.length - 1].append(p);
+  } else {
+    videoGrid2[0].append(p);
+  }
+};
 
-// const removeName = (name) => {
-//   const a = document.getElementById(`videogridofuser${name}`);
-//   a.remove();
-// };
+const removeName = (name) => {
+  const a = document.getElementById(`videogridofuser${name}`);
+  a.remove();
+};
 
 const scrollToBottom = () => {
   var d = $(".main__chat_window");
@@ -268,3 +272,31 @@ const Share = () => {
     ` Url Copied to Clipboard,\n Share it with your Friends!\n Url: ${url} `
   );
 };
+
+const stopScreenShare = async () => {
+  let videoTrack = myVideoStream.getVideoTracks()[0];
+  currentPeer.forEach(function(pc){
+    var sender = pc.getSenders().find( function(s){
+      return s.track.kind === 'video'
+  })
+  sender.replaceTrack(videoTrack)
+  })
+  myVideo.srcObject = myVideoStream
+}
+
+const ShareScreen = async () => {
+  await navigator.mediaDevices.getDisplayMedia()
+  .then(stream => {
+    let videoTrack = stream.getVideoTracks()[0];
+    currentPeer.forEach(function(pc){
+      var sender = pc.getSenders().find( function(s){
+        return s.track.kind === 'video'
+    })
+    sender.replaceTrack(videoTrack)
+    myVideo.srcObject = stream
+    })
+    videoTrack.onended = () => {
+      stopScreenShare();
+    }
+  })
+}
