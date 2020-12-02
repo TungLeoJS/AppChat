@@ -8,6 +8,7 @@ const showChat = document.getElementById("show-chat");
 const mainLeft = document.getElementById("main__left");
 const mainRight = document.getElementById("main__right");
 const mainVideos = document.querySelector(".main__videos");
+const shareScreen = document.querySelector('#shareScreen');
 
 const myPeer = new Peer(undefined, {
   host: "/",
@@ -132,10 +133,10 @@ function messageAppend(message) {
 
 function addVideoStream(video, stream, name) {
   video.srcObject = stream;
+  video.controls = true;
   video.addEventListener("loadedmetadata", () => {
     video.play();
   });
-  
   const videoGrid2 = document.createElement("div");
   videoGrid2.setAttribute("id", `videogridofuser${name}`);
   videoGrid.appendChild(videoGrid2);
@@ -154,7 +155,6 @@ function connectToNewUser(userId, stream, name) {
   call.on("stream", (userVideoStream) => {
     addVideoStream(video, userVideoStream, name);
     currentPeer.push(call.peerConnection);
-    console.log(currentPeer)
   });
   call.on("close", () => {
     video.remove();
@@ -170,8 +170,7 @@ const addUserName = async (name) => {
   p.innerHTML = name;
   const videoGrid2 = document.querySelectorAll(`#videogridofuser${name}`);
   if (videoGrid2.length > 1) {
-    console.log(videoGrid2);
-    videoGrid2[0].remove()
+    videoGrid2[0].remove();
     videoGrid2[videoGrid2.length - 1].append(p);
   } else {
     videoGrid2[0].append(p);
@@ -273,30 +272,38 @@ const Share = () => {
   );
 };
 
-const stopScreenShare = async () => {
+const stopShareScreen = async () => {
+  const html = `<i class="fas fa-desktop"></i>
+  <span>Share Screen</span>`
+  document.querySelector('#shareScreen').innerHTML = html;
   let videoTrack = myVideoStream.getVideoTracks()[0];
-  currentPeer.forEach(function(pc){
-    var sender = pc.getSenders().find( function(s){
-      return s.track.kind === 'video'
-  })
-  sender.replaceTrack(videoTrack)
-  })
-  myVideo.srcObject = myVideoStream
+  let streamTrack = myVideo.srcObject.getVideoTracks()[0];
+  streamTrack.stop();
+  console.log(`ScreenSharing ended!`)
+  currentPeer.forEach((peer) => {
+    var sender = peer.getSenders().find((s) => s.track.kind === "video");
+    sender.replaceTrack(videoTrack);
+  });
+  myVideo.srcObject = myVideoStream;
+};
+
+const startShareScreen = async () => {
+  const html = `<i class="fas fa-eye-slash"></i>
+  <span>Stop Share</span>`
+  document.querySelector('#shareScreen').innerHTML = html;
+  await navigator.mediaDevices.getDisplayMedia().then((stream) => {
+    let videoTrack = stream.getVideoTracks()[0];
+    currentPeer.forEach((peer) => {
+      var sender = peer.getSenders().find(s => s.track.kind === "video");
+      sender.replaceTrack(videoTrack);
+      myVideo.srcObject = stream;
+    });
+    videoTrack.onended = () => {
+      stopShareScreen();
+    };
+  });
 }
 
-const ShareScreen = async () => {
-  await navigator.mediaDevices.getDisplayMedia()
-  .then(stream => {
-    let videoTrack = stream.getVideoTracks()[0];
-    currentPeer.forEach(function(pc){
-      var sender = pc.getSenders().find( function(s){
-        return s.track.kind === 'video'
-    })
-    sender.replaceTrack(videoTrack)
-    myVideo.srcObject = stream
-    })
-    videoTrack.onended = () => {
-      stopScreenShare();
-    }
-  })
-}
+shareScreen.addEventListener('click', () => {
+  (myVideoStream != myVideo.srcObject) ? stopShareScreen() : startShareScreen()
+})
