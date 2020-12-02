@@ -11,7 +11,7 @@ const mainVideos = document.querySelector(".main__videos");
 const shareScreen = document.querySelector('#shareScreen');
 
 const myPeer = new Peer(undefined, {
-  host: "https://app-chat-js-2.herokuapp.com/",
+  host: "app-chat-js-2.herokuapp.com",
   port:"443",
   path: "/peerjs",
 });
