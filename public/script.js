@@ -35,6 +35,7 @@ if (messageForm != null) {
     });
     myPeer.on("open", (id) => {
       socket.emit("new-user", roomName, name, id);
+      console.log(`new user connected ${name}`)
       peers[name] = id;
     });
   } else if (name == "") {
