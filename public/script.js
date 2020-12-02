@@ -12,7 +12,7 @@ const shareScreen = document.querySelector('#shareScreen');
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "433",
+  port: "443",
   path: "/peerjs",
 });
 
@@ -144,7 +144,7 @@ function addVideoStream(video, stream, name) {
   videoGrid2.setAttribute("id", `videogridofuser${name}`);
   videoGrid.appendChild(videoGrid2);
   videoGrid2.append(video);
-  addUserName(name);
+  // addUserName(name);
 }
 
 function connectToNewUser(userId, stream, name) {
