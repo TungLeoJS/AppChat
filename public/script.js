@@ -12,7 +12,7 @@ const shareScreen = document.querySelector('#shareScreen');
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "3000",
+  port: "443",
   path: "/peerjs",
 });
 
