@@ -13,7 +13,7 @@ const shareScreen = document.querySelector('#shareScreen');
 const myPeer = new Peer(undefined, {
   host: "app-chat-js-2.herokuapp.com",
   port:"443",
-  path: "/peerjs",
+  path: '/peerjs'
 });
 
 const peers = {};
@@ -27,7 +27,6 @@ const joinRoom = () => {
 messageAppend("You joined");
 if (messageForm != null) {
   const name = prompt("What is your name?");
-  console.log(peers);
   if (name != null) {
     socket.on("username-existed", () => {
       alert(`UserName has existed, please enter another UserName!`);
@@ -74,10 +73,10 @@ navigator.mediaDevices
       call.answer(stream);
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
+        console.log('connect to caller')
         setTimeout(() => {
           addVideoStream(video, userVideoStream, callerName);
           currentPeer.push(call.peerConnection);
-          // console.log(currentPeer)
         }, 500);
         setTimeout(() => {
           // addUserName(callerName);
@@ -91,10 +90,8 @@ navigator.mediaDevices
       peers[call.peer] = call;
     });
     socket.on("user-connected", (name, userId) => {
-      console.log(peers);
       peers[name] = userId;
       messageAppend(`${name} has connected`);
-      console.log(peers);
       setTimeout(() => {
         connectToNewUser(userId, stream, name);
       }, 500);
@@ -154,8 +151,10 @@ function connectToNewUser(userId, stream, name) {
   const call = myPeer.call(userId, stream, {
     metadata: { callerName: callerName },
   });
+  console.log("calling")
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
+    console.log("connect to new user")
     addVideoStream(video, userVideoStream, name);
     currentPeer.push(call.peerConnection);
   });
@@ -164,11 +163,10 @@ function connectToNewUser(userId, stream, name) {
     console.log("closed");
   });
   peers[userId] = call;
-  console.log(peers);
 }
 
 const addUserName = async (name) => {
-  console.log(name)
+  // console.log(name)
   const p = document.createElement("p");
   p.setAttribute("id", `${name}`);
   p.innerHTML = name;
@@ -311,4 +309,3 @@ const startShareScreen = async () => {
 shareScreen.addEventListener('click', () => {
   (myVideoStream != myVideo.srcObject) ? stopShareScreen() : startShareScreen()
 })
-console.log(myPeer)
