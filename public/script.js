@@ -311,3 +311,4 @@ const startShareScreen = async () => {
 shareScreen.addEventListener('click', () => {
   (myVideoStream != myVideo.srcObject) ? stopShareScreen() : startShareScreen()
 })
+console.log(myPeer)
