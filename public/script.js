@@ -66,6 +66,7 @@ navigator.mediaDevices
       stream,
       Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]
     );
+    console.log(peers)
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
       const callerName = call.metadata.callerName;
