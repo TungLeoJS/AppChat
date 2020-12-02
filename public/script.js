@@ -27,6 +27,7 @@ const joinRoom = () => {
 messageAppend("You joined");
 if (messageForm != null) {
   const name = prompt("What is your name?");
+  console.log(name)
   if (name != null) {
     socket.on("username-existed", () => {
       alert(`UserName has existed, please enter another UserName!`);
