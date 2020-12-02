@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
       socket.emit("username-existed")
     }else{
       rooms[room].users[socket.id] = name;
-      socket.to(room).broadcast.emit("user-connected", name, userId);
+      socket.to(room).emit("user-connected", name, userId);
       console.log(rooms)
     }
     socket.on("disconnect", () => {
