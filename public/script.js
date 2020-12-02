@@ -11,8 +11,8 @@ const mainVideos = document.querySelector(".main__videos");
 const shareScreen = document.querySelector('#shareScreen');
 
 const myPeer = new Peer(undefined, {
-  host: "/",
-  port: "443",
+  host: "https://app-chat-js-2.herokuapp.com/",
+  port:"443",
   path: "/peerjs",
 });
 
@@ -58,7 +58,7 @@ const senders = [];
 navigator.mediaDevices
   .getUserMedia({
     audio: true,
-    video: true,
+    video: {width: 1280, height: 720},
   })
   .then((stream) => {
     myVideoStream = stream;
@@ -144,7 +144,7 @@ function addVideoStream(video, stream, name) {
   videoGrid2.setAttribute("id", `videogridofuser${name}`);
   videoGrid.appendChild(videoGrid2);
   videoGrid2.append(video);
-  // addUserName(name);
+  addUserName(name);
 }
 
 function connectToNewUser(userId, stream, name) {
@@ -168,6 +168,7 @@ function connectToNewUser(userId, stream, name) {
 }
 
 const addUserName = async (name) => {
+  console.log(name)
   const p = document.createElement("p");
   p.setAttribute("id", `${name}`);
   p.innerHTML = name;
