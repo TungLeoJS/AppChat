@@ -12,7 +12,7 @@ const shareScreen = document.querySelector('#shareScreen');
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "443",
+  port: "433",
   path: "/peerjs",
 });
 
@@ -40,7 +40,10 @@ if (messageForm != null) {
   } else if (name == "") {
     document.location.href = "/";
     alert("Please enter your name !");
-  } else if (name == null) {
+  } else if (name == undefined) {
+    document.location.href = "/";
+    alert("Please enter your name !");
+  }else if (name == null) {
     document.location.href = "/";
     alert("Please enter your name !");
   }
