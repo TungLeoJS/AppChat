@@ -12,7 +12,7 @@ const shareScreen = document.querySelector('#shareScreen');
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port:"443",
+  port:"3000",
   path: '/peerjs'
 });
 
@@ -24,10 +24,8 @@ const joinRoom = () => {
   inviteLinkInput.value = "";
 };
 
-messageAppend("You joined");
-if (messageForm != null) {
+  messageAppend("You joined");
   const name = prompt("What is your name?");
-  console.log(name)
   if (name != null) {
     socket.on("username-existed", () => {
       alert(`UserName has existed, please enter another UserName!`);
@@ -48,14 +46,12 @@ if (messageForm != null) {
     document.location.href = "/";
     alert("Please enter your name !");
   }
-}
 
 const myVideo = document.createElement("video");
 myVideo.muted = true;
 let myVideoStream;
 var currentPeer = [];
 const senders = [];
-
 navigator.mediaDevices
   .getUserMedia({
     audio: true,
@@ -66,9 +62,9 @@ navigator.mediaDevices
     addVideoStream(
       myVideo,
       stream,
-      Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]
+      name
     );
-    console.log(peers)
+    console.log(name)
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
       const callerName = call.metadata.callerName;
@@ -140,11 +136,11 @@ function addVideoStream(video, stream, name) {
   video.addEventListener("loadedmetadata", () => {
     video.play();
   });
-  // const videoGrid2 = document.createElement("div");
-  // videoGrid2.setAttribute("id", `videogridofuser${name}`);
-  // videoGrid.appendChild(videoGrid2);
-  videoGrid.append(video);
-  // addUserName(name);
+  const videoGrid2 = document.createElement("div");
+  videoGrid2.setAttribute("id", `videogridofuser${name}`);
+  videoGrid.appendChild(videoGrid2);
+  videoGrid2.append(video);
+  addUserName(name);
 }
 
 function connectToNewUser(userId, stream, name) {
