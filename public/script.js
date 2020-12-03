@@ -11,7 +11,7 @@ const mainVideos = document.querySelector(".main__videos");
 const shareScreen = document.querySelector('#shareScreen');
 
 const myPeer = new Peer(undefined, {
-  host: "app-chat-js.herokuapp.com",
+  host: "/",
   port:"443",
   path: '/peerjs'
 });
@@ -77,9 +77,6 @@ navigator.mediaDevices
           addVideoStream(video, userVideoStream, callerName);
           currentPeer.push(call.peerConnection);
         }, 500);
-        setTimeout(() => {
-          // addUserName(callerName);
-        }, 500);
         peers[call.peer] = call;
       });
       call.on("close", () => {
@@ -94,9 +91,6 @@ navigator.mediaDevices
       setTimeout(() => {
         connectToNewUser(userId, stream, name);
       }, 500);
-      setTimeout(() => {
-        // addUserName(name);
-      }, 1000);
     });
   });
 
@@ -165,7 +159,6 @@ function connectToNewUser(userId, stream, name) {
 }
 
 const addUserName = async (name) => {
-  // console.log(name)
   const p = document.createElement("p");
   p.setAttribute("id", `${name}`);
   p.innerHTML = name;
