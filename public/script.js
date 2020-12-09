@@ -12,7 +12,7 @@ const shareScreen = document.querySelector('#shareScreen');
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port:"443",
+  port:"3000",
   path: '/peerjs'
 });
 
@@ -95,11 +95,13 @@ navigator.mediaDevices
   });
 
 socket.on("user-disconnected", (name, userId) => {
-  messageAppend(`${name} has disconnected`);
-  if (peers[userId]) peers[userId].close();
-  delete peers[userId];
-  delete peers[name];
-  removeName(name);
+  if(name != null){
+    messageAppend(`${name} has disconnected`);
+    if (peers[userId]) peers[userId].close();
+    delete peers[userId];
+    delete peers[name];
+    removeName(name);
+  }
 });
 
 socket.on("chat-message", (data) => {

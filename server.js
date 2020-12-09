@@ -24,59 +24,54 @@ app.get("/", (req, res) => {
 
 app.get("/:room", (req, res) => {
   res.render("room", { roomName: req.params.room });
-  if(rooms[req.params.room] == null){
-    rooms[req.params.room] = { users : {}}
-  }
+    if (rooms[req.params.room] == null) {
+      rooms[req.params.room] = { users: {} };
+    }
 });
 
 app.post("/room", (req, res) => {
-  res.redirect(`/${uuidV4()}`)
-  
+  res.redirect(`/${uuidV4()}`);
 });
 
 io.on("connection", (socket) => {
-  socket.on("send-chat-message", (room, message) => {
-    socket.to(room).broadcast.emit("chat-message", {
-      message: message,
-      name: rooms[room].users[socket.id],
-    });
-  });
-
   socket.on("new-user", (room, name, userId) => {
+    if(rooms[room] == null){
+      rooms[room] = {users: {}}
+    }
     socket.join(room);
-    if(Object.values(rooms[room].users).includes(name) == true){
-      console.log(userId)
-      console.log(rooms)
-      socket.emit("username-existed")
-    }else{
+    if (Object.values(rooms[room].users).includes(name) == true) {
+      console.log("username has existed");
+      socket.emit("username-existed");
+    } else{
       rooms[room].users[socket.id] = name;
       socket.to(room).emit("user-connected", name, userId);
-      console.log(rooms)
+      console.log(`user ${rooms[room].users[socket.id]} has connected`);
+      console.log(rooms);
     }
-    socket.on("disconnect", () => {
-      getUserRooms(socket).forEach((room) => {
-        socket
-          .to(room)
-          .broadcast.emit(
-            "user-disconnected",
-            rooms[room].users[socket.id],
-            userId
-          );
-        delete rooms[room].users[socket.id];
-        const usersArr = Object.keys(rooms[room].users).length;
-        if (usersArr == 0) {
-          delete rooms[room];
-        }
+
+    socket.on("send-chat-message", (room, message) => {
+      socket.to(room).broadcast.emit("chat-message", {
+        message: message,
+        name: rooms[room].users[socket.id],
       });
+    });
+
+    socket.on("disconnect", () => {
+      socket
+        .to(room)
+        .broadcast.emit(
+          "user-disconnected",
+          rooms[room].users[socket.id],
+          userId
+        );
+      console.log(`user ${rooms[room].users[socket.id]} has disconnected`);
+      delete rooms[room].users[socket.id];
+      const usersArr = Object.keys(rooms[room].users).length;
+      if (usersArr == 0) {
+        delete rooms[room];
+      }
     });
   });
 });
-
-function getUserRooms(socket) {
-  return Object.entries(rooms).reduce((names, [name, room]) => {
-    if (room.users[socket.id] != null) names.push(name);
-    return names;
-  }, []);
-}
 
 server.listen(process.env.PORT || 3000);
