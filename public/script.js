@@ -9,6 +9,20 @@ const mainLeft = document.getElementById("main__left");
 const mainRight = document.getElementById("main__right");
 const mainVideos = document.querySelector(".main__videos");
 const shareScreen = document.querySelector("#shareScreen");
+const sideBar = document.querySelector(".sidebar");
+const sidebarToggle = document.querySelector("#sidebar-toggle");
+const closeBtn = document.querySelector(".close-btn");
+const listName = document.querySelector(".list_name")
+
+sidebarToggle.addEventListener("click", () => {
+    sideBar.classList.toggle("show-sidebar");
+})
+
+closeBtn.addEventListener("click", () => {
+    if(sideBar.classList.contains("show-sidebar")){
+        sideBar.classList.remove("show-sidebar");
+    }
+})
 
 const myPeer = new Peer(undefined, {
   host: "/",
@@ -60,7 +74,7 @@ navigator.mediaDevices
   })
   .then((stream) => {
     myVideoStream = stream;
-    addVideoStream(myVideo, stream, name);
+    addVideoStream(myVideo, stream, name, peers[name]);
     console.log(name);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
@@ -71,7 +85,7 @@ navigator.mediaDevices
       call.on("stream", (userVideoStream) => {
         console.log("connect to caller");
         setTimeout(() => {
-          addVideoStream(video, userVideoStream, callerName);
+          addVideoStream(video, userVideoStream, callerName, peers[callerName]);
           currentPeer.push(call.peerConnection);
         }, 500);
         peers[call.peer] = call;
@@ -115,7 +129,7 @@ messageForm.addEventListener("submit", (e) => {
   }
 });
 
-const addVideoStream = (video, stream, name) => {
+const addVideoStream = (video, stream, name, userId) => {
   video.srcObject = stream;
   video.controls = true;
   video.addEventListener("loadedmetadata", () => {
@@ -123,9 +137,15 @@ const addVideoStream = (video, stream, name) => {
   });
   const videoGrid2 = document.createElement("div");
   videoGrid2.setAttribute("id", `videogridofuser${name}`);
+  const listNameItem = document.createElement("li");
+  listNameItem.setAttribute("id",`list_name_items_of_user_${name}`);
+  listName.appendChild(listNameItem)
   videoGrid.appendChild(videoGrid2);
   videoGrid2.append(video);
-  addUserName(name);
+  const element = document.querySelectorAll(`#videogridofuser${name}`);
+  const element2 = document.querySelectorAll(`#list_name_items_of_user_${name}`)
+  addUserName(name, element);
+  addUserName(name, element2, userId);
 }
 
 const connectToNewUser = (userId, stream, name) => {
@@ -139,7 +159,7 @@ const connectToNewUser = (userId, stream, name) => {
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
     console.log("connect to new user");
-    addVideoStream(video, userVideoStream, name);
+    addVideoStream(video, userVideoStream, name, userId);
     currentPeer.push(call.peerConnection);
   });
   call.on("close", () => {
@@ -149,22 +169,25 @@ const connectToNewUser = (userId, stream, name) => {
   peers[userId] = call;
 }
 
-const addUserName = async (name) => {
+const addUserName = async (name, element, userId) => {
   const p = document.createElement("p");
   p.setAttribute("id", `${name}`);
   p.innerHTML = name;
-  const videoGrid2 = document.querySelectorAll(`#videogridofuser${name}`);
-  if (videoGrid2.length > 1) {
-    videoGrid2[0].remove();
-    videoGrid2[videoGrid2.length - 1].append(p);
-  } else {
-    videoGrid2[0].append(p);
-  }
+  const p2 = document.createElement("p")
+  p2.innerHTML = `- Username: ${name} (Id: ${userId})`;
+    if (element.length > 1) {
+      element[0].remove();
+      element[0].nodeName == "DIV" ? element[element.length - 1].append(p) :element[element.length - 1].append(p2);
+    } else {
+      element[0].nodeName == "DIV" ? element[0].append(p) : element[0].append(p2);
+    }
 };
 
 const removeName = (name) => {
   const a = document.getElementById(`videogridofuser${name}`);
+  const b = document.getElementById(`list_name_items_of_user_${name}`)
   a.remove();
+  b.remove();
 };
 
 const scrollToBottom = () => {
@@ -238,7 +261,6 @@ showChat.addEventListener("click", () => {
 });
 
 leaveButton.addEventListener("click", () => {
-  const userId = myPeer.id;
   socket.emit("disconnect");
   document.location.href = "/";
   alert("You have leaved the room");
@@ -273,9 +295,6 @@ const stopShareScreen = async () => {
 };
 
 const startShareScreen = async () => {
-  const html = `<i class="fas fa-eye-slash"></i>
-  <span>Stop Share</span>`;
-  document.querySelector("#shareScreen").innerHTML = html;
   await navigator.mediaDevices.getDisplayMedia().then((stream) => {
     let videoTrack = stream.getVideoTracks()[0];
     currentPeer.forEach((peer) => {
@@ -283,6 +302,9 @@ const startShareScreen = async () => {
       sender.replaceTrack(videoTrack);
       myVideo.srcObject = stream;
     });
+    const html = `<i class="fas fa-eye-slash"></i>
+    <span>Stop Share</span>`;
+    document.querySelector("#shareScreen").innerHTML = html;
     videoTrack.onended = () => {
       stopShareScreen();
     };
