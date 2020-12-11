@@ -75,7 +75,7 @@ navigator.mediaDevices
   .then((stream) => {
     myVideoStream = stream;
     addVideoStream(myVideo, stream, name, peers[name]);
-    console.log(peers)
+    console.log(peers[name])
     console.log(myPeer);
     setInterval(() => {
       console.log(peers);
