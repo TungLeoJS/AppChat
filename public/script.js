@@ -74,7 +74,7 @@ navigator.mediaDevices
   })
   .then((stream) => {
     myVideoStream = stream;
-    addVideoStream(myVideo, stream, name, peers[name]);
+    addVideoStream(myVideo, stream, name);
     console.log(name);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
