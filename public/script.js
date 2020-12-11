@@ -78,7 +78,7 @@ navigator.mediaDevices
     console.log(peers[name])
     console.log(myPeer);
     setInterval(() => {
-      console.log(peers);
+      console.log(peers[name]);
       console.log(myPeer)
     }, 5000);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
