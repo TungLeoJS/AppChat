@@ -62,6 +62,7 @@ if (name == "" || name == undefined || name == null) {
   })
   .then((stream) => {
     addVideoStream(myVideo,stream,name, id)
+    myVideoStream = stream;
   })
     peers[name] = id;
   });
@@ -84,7 +85,7 @@ navigator.mediaDevices
     video: { width: 1280, height: 720 },
   })
   .then((stream) => {
-    myVideoStream = stream;
+    
     // addVideoStream(myVideo, stream, name);
     setInterval(() => {
       console.log(peers)
