@@ -76,6 +76,9 @@ navigator.mediaDevices
   .then((stream) => {
     myVideoStream = stream;
     addVideoStream(myVideo, stream, name, myPeer._id);
+    console.log(myPeer)
+    console.log(myPeer._id)
+    console.log(peers)
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
       const callerName = call.metadata.callerName;
