@@ -137,20 +137,7 @@ if (name == "" || name == undefined || name == null) {
   myPeer.on("open", (id) => {
     socket.emit("new-user", roomName, name, id);
     console.log(`new user connected ${name}`);
-    navigator.mediaDevices
-      .getUserMedia({
-        audio: true,
-        video: { width: 1280, height: 720 },
-      })
-      .then((stream) => {
-        addVideoStream(myVideo, stream, name, id);
-        myVideoStream = stream;
-      });
     peers[name] = id;
-    setInterval(() => {
-      console.log(peers);
-      console.log(myPeer);
-    }, 5000);
   });
 }
 
@@ -170,8 +157,12 @@ navigator.mediaDevices
     video: { width: 1280, height: 720 },
   })
   .then((stream) => {
-    // addVideoStream(myVideo, stream, name);
-    
+    myVideoStream = stream;
+    addVideoStream(myVideo, stream, name);
+    setInterval(() => {
+      console.log(peers)
+      console.log(myPeer)
+    }, 5000);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
       const callerName = call.metadata.callerName;
