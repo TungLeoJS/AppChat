@@ -26,7 +26,7 @@ closeBtn.addEventListener("click", () => {
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "3000",
+  port: "443",
   path: "/peerjs",
 });
 
