@@ -14,6 +14,12 @@ const sidebarToggle = document.querySelector("#sidebar-toggle");
 const closeBtn = document.querySelector(".close-btn");
 const listName = document.querySelector(".list_name")
 
+const myVideo = document.createElement("video");
+myVideo.muted = true;
+let myVideoStream;
+var currentPeer = [];
+const senders = [];
+
 const myPeer = new Peer(undefined, {
   host: "/",
   port: "3000",
@@ -49,6 +55,14 @@ if (name == "" || name == undefined || name == null) {
   myPeer.on("open", (id) => {
     socket.emit("new-user", roomName, name, id);
     console.log(`new user connected ${name}`);
+    navigator.mediaDevices
+  .getUserMedia({
+    audio: true,
+    video: { width: 1280, height: 720 },
+  })
+  .then((stream) => {
+    addVideoStream(myVideo,stream,name, id)
+  })
     peers[name] = id;
   });
 }
@@ -63,11 +77,7 @@ closeBtn.addEventListener("click", () => {
   }
 })
 
-const myVideo = document.createElement("video");
-myVideo.muted = true;
-let myVideoStream;
-var currentPeer = [];
-const senders = [];
+
 navigator.mediaDevices
   .getUserMedia({
     audio: true,
@@ -75,7 +85,7 @@ navigator.mediaDevices
   })
   .then((stream) => {
     myVideoStream = stream;
-    addVideoStream(myVideo, stream, name);
+    // addVideoStream(myVideo, stream, name);
     setInterval(() => {
       console.log(peers)
       console.log(myPeer)
