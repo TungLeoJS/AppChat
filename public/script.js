@@ -74,13 +74,9 @@ navigator.mediaDevices
   })
   .then((stream) => {
     myVideoStream = stream;
-    addVideoStream(myVideo, stream, name, peers[name]);
-    console.log(peers[name])
-    console.log(myPeer);
-    setInterval(() => {
-      console.log(peers[name]);
-      console.log(myPeer)
-    }, 5000);
+    setTimeout(() => {
+      addVideoStream(myVideo, stream, name, peers[name]);
+    }, 1000);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
       const callerName = call.metadata.callerName;
@@ -150,7 +146,9 @@ const addVideoStream = (video, stream, name, userId) => {
   const element = document.querySelectorAll(`#videogridofuser${name}`);
   const element2 = document.querySelectorAll(`#list_name_items_of_user_${name}`)
   addUserName(name, element);
-  addUserName(name, element2, userId);
+  setTimeout(() => {
+    addUserName(name, element2, userId);
+  }, 1000);
 }
 
 const connectToNewUser = (userId, stream, name) => {
