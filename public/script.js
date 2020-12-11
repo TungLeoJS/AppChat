@@ -1,4 +1,4 @@
-const socket = io("/");
+const socket = io('/');
 const messageForm = document.getElementById("send-container");
 const messageInput = document.getElementById("message-input");
 const messageContainer = document.getElementById("message-container");
@@ -14,19 +14,9 @@ const sidebarToggle = document.querySelector("#sidebar-toggle");
 const closeBtn = document.querySelector(".close-btn");
 const listName = document.querySelector(".list_name")
 
-sidebarToggle.addEventListener("click", () => {
-    sideBar.classList.toggle("show-sidebar");
-})
-
-closeBtn.addEventListener("click", () => {
-    if(sideBar.classList.contains("show-sidebar")){
-        sideBar.classList.remove("show-sidebar");
-    }
-})
-
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "443",
+  port: "3000",
   path: "/peerjs",
 });
 
@@ -62,6 +52,17 @@ if (name == "" || name == undefined || name == null) {
     peers[name] = id;
   });
 }
+
+sidebarToggle.addEventListener("click", () => {
+  sideBar.classList.toggle("show-sidebar");
+})
+
+closeBtn.addEventListener("click", () => {
+  if(sideBar.classList.contains("show-sidebar")){
+      sideBar.classList.remove("show-sidebar");
+  }
+})
+
 const myVideo = document.createElement("video");
 myVideo.muted = true;
 let myVideoStream;
@@ -74,8 +75,7 @@ navigator.mediaDevices
   })
   .then((stream) => {
     myVideoStream = stream;
-    addVideoStream(myVideo, stream, name, peers[name]);
-    console.log(name);
+    addVideoStream(myVideo, stream, name, myPeer._id);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
       const callerName = call.metadata.callerName;
