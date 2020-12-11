@@ -75,6 +75,8 @@ navigator.mediaDevices
   .then((stream) => {
     myVideoStream = stream;
     addVideoStream(myVideo, stream, name);
+    console.log(peers)
+    console.log(myPeer);
     setInterval(() => {
       console.log(peers);
       console.log(myPeer)
@@ -317,4 +319,3 @@ const startShareScreen = async () => {
 shareScreen.addEventListener("click", () => {
   myVideoStream != myVideo.srcObject ? stopShareScreen() : startShareScreen();
 });
-console.log(peers);
