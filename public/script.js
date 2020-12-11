@@ -146,9 +146,7 @@ const addVideoStream = (video, stream, name, userId) => {
   const element = document.querySelectorAll(`#videogridofuser${name}`);
   const element2 = document.querySelectorAll(`#list_name_items_of_user_${name}`)
   addUserName(name, element);
-  setTimeout(() => {
-    addUserName(name, element2, userId);
-  }, 1000);
+  addUserName(name, element2, userId);
 }
 
 const connectToNewUser = (userId, stream, name) => {
