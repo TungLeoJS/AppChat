@@ -184,6 +184,7 @@ navigator.mediaDevices
       peers[call.peer] = call;
     });
     socket.on("user-connected", (name, userId) => {
+      console.log(userId)
       peers[name] = userId;
       messageAppend(`${name} has connected`);
       setTimeout(() => {
