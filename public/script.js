@@ -26,7 +26,7 @@ closeBtn.addEventListener("click", () => {
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "3000",
+  port: "443",
   path: "/peerjs",
 });
 
@@ -75,7 +75,10 @@ navigator.mediaDevices
   .then((stream) => {
     myVideoStream = stream;
     addVideoStream(myVideo, stream, name);
-    console.log(name);
+    setInterval(() => {
+      console.log(peers);
+      console.log(myPeer)
+    }, 5000);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
       const callerName = call.metadata.callerName;
