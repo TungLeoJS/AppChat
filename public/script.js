@@ -26,7 +26,7 @@ closeBtn.addEventListener("click", () => {
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "443",
+  port: "3000",
   path: "/peerjs",
 });
 
@@ -64,47 +64,67 @@ if (name == "" || name == undefined || name == null) {
 }
 const myVideo = document.createElement("video");
 myVideo.muted = true;
-let myVideoStream;
+let myVideoStream = null;
 var currentPeer = [];
 const senders = [];
-navigator.mediaDevices
-  .getUserMedia({
-    audio: true,
-    video: { width: 1280, height: 720 },
-  })
-  .then((stream) => {
-    myVideoStream = stream;
-    setTimeout(() => {
-      addVideoStream(myVideo, stream, name, peers[name]);
-    }, 1000);
-    // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
-    myPeer.on("call", (call) => {
-      const callerName = call.metadata.callerName;
-      peers[callerName] = call.peer;
-      call.answer(stream);
-      const video = document.createElement("video");
-      call.on("stream", (userVideoStream) => {
-        console.log("connect to caller");
-        setTimeout(() => {
-          addVideoStream(video, userVideoStream, callerName, peers[callerName]);
-          currentPeer.push(call.peerConnection);
-        }, 500);
-        peers[call.peer] = call;
-      });
-      call.on("close", () => {
-        video.remove();
-        console.log("closed");
-      });
+const constraints = {audio:true, video: {width: 1280, height: 720}}
+ navigator.mediaDevices.getUserMedia(constraints)
+ .then(stream => {
+  myVideoStream = stream;
+  setTimeout(() => {
+    addVideoStream(myVideo, stream, name, peers[name]);
+  }, 1000);
+  // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
+  myPeer.on("call", (call) => {
+    const callerName = call.metadata.callerName;
+    peers[callerName] = call.peer;
+    call.answer(stream);
+    const video = document.createElement("video");
+    call.on("stream", (userVideoStream) => {
+      console.log("connect to caller");
+      setTimeout(() => {
+        addVideoStream(video, userVideoStream, callerName, peers[callerName]);
+        currentPeer.push(call.peerConnection);
+      }, 500);
       peers[call.peer] = call;
     });
-    socket.on("user-connected", (name, userId) => {
-      peers[name] = userId;
-      messageAppend(`${name} has connected`);
-      setTimeout(() => {
-        connectToNewUser(userId, stream, name);
-      }, 500);
+    call.on("close", () => {
+      video.remove();
+      console.log("closed");
     });
+    peers[call.peer] = call;
   });
+  socket.on("user-connected", (name, userId) => {
+    peers[name] = userId;
+    messageAppend(`${name} has connected`);
+    setTimeout(() => {
+      connectToNewUser(userId, stream, name);
+    }, 500);
+  });
+ }, () => {
+  myPeer.on("call", (call) => {
+    const callerName = call.metadata.callerName;
+    peers[callerName] = call.peer;
+    call.answer(stream);
+    const video = document.createElement("video");
+    call.on("stream", (userVideoStream) => {
+      console.log("connect to caller");
+      setTimeout(() => {
+        addVideoStream(video, userVideoStream, callerName, peers[callerName]);
+        currentPeer.push(call.peerConnection);
+      }, 500);
+      peers[call.peer] = call;
+    });
+    call.on("close", () => {
+      video.remove();
+      console.log("closed");
+    });
+    peers[call.peer] = call;
+  });
+ })
+ .catch(err => {
+   console.log("Error with name: " +err.name)
+ })
 
 socket.on("user-disconnected", (name, userId) => {
   if (name != null) {
@@ -150,6 +170,7 @@ const addVideoStream = (video, stream, name, userId) => {
 }
 
 const connectToNewUser = (userId, stream, name) => {
+  console.log(stream)
   const callerName = Object.keys(peers)[
     Object.values(peers).indexOf(myPeer._id)
   ];
@@ -160,7 +181,7 @@ const connectToNewUser = (userId, stream, name) => {
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
     console.log("connect to new user");
-    addVideoStream(video, userVideoStream, name, userId);
+    addVideoStream(video, userVideoStream, name, userId); 
     currentPeer.push(call.peerConnection);
   });
   call.on("close", () => {
