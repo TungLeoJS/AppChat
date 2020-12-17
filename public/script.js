@@ -191,11 +191,6 @@ const connectToNewUser = (userId, stream, name) => {
     addVideoStream(video, userVideoStream, name, userId); 
     currentPeer.push(call.peerConnection);
   });
-  call.on("undefined", () => {
-    console.log("connect to new user");
-    addVideoStream(video, null, name, userId); 
-    currentPeer.push(call.peerConnection);
-  })
   call.on("close", () => {
     video.remove();
     console.log("closed");
