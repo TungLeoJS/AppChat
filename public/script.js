@@ -121,7 +121,14 @@ const constraints = {audio:true, video: {width: 1280, height: 720}}
     });
     peers[call.peer] = call;
   });
- })
+  socket.on("user-connected", (name, userId) => {
+    peers[name] = userId;
+    messageAppend(`${name} has connected`);
+    setTimeout(() => {
+      connectToNewUser(userId, null, name);
+    }, 500);
+  });
+})
  .catch(err => {
    console.log("Error with name: " +err.name)
  })
