@@ -67,12 +67,16 @@ myVideo.muted = true;
 let myVideoStream;
 var currentPeer = [];
 const senders = [];
-navigator.mediaDevices
-  .getUserMedia({
+const constrain = {
     audio: true,
     video: { width: 1280, height: 720 },
-  })
+}
+const getUserDevice = constrain =>  navigator.mediaDevices
+.getUserMedia(constrain)
+  
+  getUserDevice(constrain)
   .then((stream) => {
+    console.log(stream)
     myVideoStream = stream;
     addVideoStream(myVideo, stream, name, peers[name]);
     console.log(name);
@@ -103,7 +107,40 @@ navigator.mediaDevices
         connectToNewUser(userId, stream, name);
       }, 500);
     });
-  });
+  }, getUserDevice({audio: true})
+  .then(stream => {
+    myVideoStream = stream;
+    addVideoStream(myVideo, stream, name, peers[name]);
+    myPeer.on("call", (call) => {
+      const callerName = call.metadata.callerName;
+      peers[callerName] = call.peer;
+      call.answer(stream);
+      const video = document.createElement("video");
+      call.on("stream", (userVideoStream) => {
+        console.log("connect to caller");
+        setTimeout(() => {
+          addVideoStream(video, userVideoStream, callerName, peers[callerName]);
+          currentPeer.push(call.peerConnection);
+        }, 500);
+        peers[call.peer] = call;
+      });
+      call.on("close", () => {
+        video.remove();
+        console.log("closed");
+      });
+      peers[call.peer] = call;
+    });
+    socket.on("user-connected", (name, userId) => {
+      peers[name] = userId;
+      messageAppend(`${name} has connected`);
+      setTimeout(() => {
+        connectToNewUser(userId, stream, name);
+      }, 500);
+    });
+  }),)
+  .catch(err => {
+    console.log(err.message)
+  })
 
 socket.on("user-disconnected", (name, userId) => {
   if (name != null) {
@@ -134,6 +171,7 @@ const addVideoStream = (video, stream, name, userId) => {
   video.controls = true;
   video.addEventListener("loadedmetadata", () => {
     video.play();
+    video.muted = true;
   });
   const videoGrid2 = document.createElement("div");
   videoGrid2.setAttribute("id", `videogridofuser${name}`);
@@ -208,13 +246,17 @@ const muteUnmute = () => {
 
 const playStop = () => {
   console.log("object");
-  let enabled = myVideoStream.getVideoTracks()[0].enabled;
+  if(myVideoStream.getVideoTracks()[0] == undefined){
+    console.log("My video stream not found")
+  }else{
+    let enabled = myVideoStream.getVideoTracks()[0].enabled;
   if (enabled) {
     myVideoStream.getVideoTracks()[0].enabled = false;
     setPlayVideo();
   } else {
     setStopVideo();
     myVideoStream.getVideoTracks()[0].enabled = true;
+  }
   }
 };
 
@@ -299,9 +341,9 @@ const startShareScreen = async () => {
     let videoTrack = stream.getVideoTracks()[0];
     currentPeer.forEach((peer) => {
       var sender = peer.getSenders().find((s) => s.track.kind === "video");
-      sender.replaceTrack(videoTrack);
-      myVideo.srcObject = stream;
+      sender.addTrack(videoTrack);
     });
+    myVideo.srcObject = stream;
     const html = `<i class="fas fa-eye-slash"></i>
     <span>Stop Share</span>`;
     document.querySelector("#shareScreen").innerHTML = html;
@@ -314,4 +356,3 @@ const startShareScreen = async () => {
 shareScreen.addEventListener("click", () => {
   myVideoStream != myVideo.srcObject ? stopShareScreen() : startShareScreen();
 });
-console.log(peers);
