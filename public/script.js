@@ -64,74 +64,83 @@ if (name == "" || name == undefined || name == null) {
 }
 const myVideo = document.createElement("video");
 myVideo.muted = true;
-let myVideoStream = null;
+let myVideoStream;
 var currentPeer = [];
 const senders = [];
-const constraints = {audio:true, video: {width: 1280, height: 720}}
- navigator.mediaDevices.getUserMedia(constraints)
- .then(stream => {
-  myVideoStream = stream;
-  setTimeout(() => {
+const constrain = {
+    audio: true,
+    video: { width: 1280, height: 720 },
+}
+const getUserDevice = constrain =>  navigator.mediaDevices
+.getUserMedia(constrain)
+  
+  getUserDevice(constrain)
+  .then((stream) => {
+    console.log(stream)
+    myVideoStream = stream;
     addVideoStream(myVideo, stream, name, peers[name]);
-  }, 1000);
-  // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
-  myPeer.on("call", (call) => {
-    const callerName = call.metadata.callerName;
-    peers[callerName] = call.peer;
-    call.answer(stream);
-    const video = document.createElement("video");
-    call.on("stream", (userVideoStream) => {
-      console.log("connect to caller");
-      setTimeout(() => {
-        addVideoStream(video, userVideoStream, callerName, peers[callerName]);
-        currentPeer.push(call.peerConnection);
-      }, 500);
+    console.log(name);
+    // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
+    myPeer.on("call", (call) => {
+      const callerName = call.metadata.callerName;
+      peers[callerName] = call.peer;
+      call.answer(stream);
+      const video = document.createElement("video");
+      call.on("stream", (userVideoStream) => {
+        console.log("connect to caller");
+        setTimeout(() => {
+          addVideoStream(video, userVideoStream, callerName, peers[callerName]);
+          currentPeer.push(call.peerConnection);
+        }, 500);
+        peers[call.peer] = call;
+      });
+      call.on("close", () => {
+        video.remove();
+        console.log("closed");
+      });
       peers[call.peer] = call;
     });
-    call.on("close", () => {
-      video.remove();
-      console.log("closed");
-    });
-    peers[call.peer] = call;
-  });
-  socket.on("user-connected", (name, userId) => {
-    peers[name] = userId;
-    messageAppend(`${name} has connected`);
-    setTimeout(() => {
-      connectToNewUser(userId, stream, name);
-    }, 500);
-  });
- }, () => {
-  myPeer.on("call", (call) => {
-    const callerName = call.metadata.callerName;
-    peers[callerName] = call.peer;
-    call.answer(null);
-    const video = document.createElement("video");
-    call.on("stream", (userVideoStream) => {
-      console.log("connect to caller");
+    socket.on("user-connected", (name, userId) => {
+      peers[name] = userId;
+      messageAppend(`${name} has connected`);
       setTimeout(() => {
-        addVideoStream(video, userVideoStream, callerName, peers[callerName]);
-        currentPeer.push(call.peerConnection);
+        connectToNewUser(userId, stream, name);
       }, 500);
+    });
+  }, getUserDevice({audio: true})
+  .then(stream => {
+    myVideoStream = stream;
+    addVideoStream(myVideo, stream, name, peers[name]);
+    myPeer.on("call", (call) => {
+      const callerName = call.metadata.callerName;
+      peers[callerName] = call.peer;
+      call.answer(stream);
+      const video = document.createElement("video");
+      call.on("stream", (userVideoStream) => {
+        console.log("connect to caller");
+        setTimeout(() => {
+          addVideoStream(video, userVideoStream, callerName, peers[callerName]);
+          currentPeer.push(call.peerConnection);
+        }, 500);
+        peers[call.peer] = call;
+      });
+      call.on("close", () => {
+        video.remove();
+        console.log("closed");
+      });
       peers[call.peer] = call;
     });
-    call.on("close", () => {
-      video.remove();
-      console.log("closed");
+    socket.on("user-connected", (name, userId) => {
+      peers[name] = userId;
+      messageAppend(`${name} has connected`);
+      setTimeout(() => {
+        connectToNewUser(userId, stream, name);
+      }, 500);
     });
-    peers[call.peer] = call;
-  });
-  socket.on("user-connected", (name, userId) => {
-    peers[name] = userId;
-    messageAppend(`${name} has connected`);
-    setTimeout(() => {
-      connectToNewUser(userId, null, name);
-    }, 500);
-  });
-})
- .catch(err => {
-   console.log("Error with name: " +err.name)
- })
+  }),)
+  .catch(err => {
+    console.log(err.message)
+  })
 
 socket.on("user-disconnected", (name, userId) => {
   if (name != null) {
@@ -162,6 +171,7 @@ const addVideoStream = (video, stream, name, userId) => {
   video.controls = true;
   video.addEventListener("loadedmetadata", () => {
     video.play();
+    video.muted = true;
   });
   const videoGrid2 = document.createElement("div");
   videoGrid2.setAttribute("id", `videogridofuser${name}`);
@@ -177,7 +187,6 @@ const addVideoStream = (video, stream, name, userId) => {
 }
 
 const connectToNewUser = (userId, stream, name) => {
-  console.log(stream)
   const callerName = Object.keys(peers)[
     Object.values(peers).indexOf(myPeer._id)
   ];
@@ -187,10 +196,10 @@ const connectToNewUser = (userId, stream, name) => {
   console.log("calling");
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
-      console.log("connect to new user");
-      addVideoStream(video, userVideoStream, name, userId); 
-      currentPeer.push(call.peerConnection);
-    })
+    console.log("connect to new user");
+    addVideoStream(video, userVideoStream, name, userId);
+    currentPeer.push(call.peerConnection);
+  });
   call.on("close", () => {
     video.remove();
     console.log("closed");
@@ -237,13 +246,17 @@ const muteUnmute = () => {
 
 const playStop = () => {
   console.log("object");
-  let enabled = myVideoStream.getVideoTracks()[0].enabled;
+  if(myVideoStream.getVideoTracks()[0] == undefined){
+    console.log("My video stream not found")
+  }else{
+    let enabled = myVideoStream.getVideoTracks()[0].enabled;
   if (enabled) {
     myVideoStream.getVideoTracks()[0].enabled = false;
     setPlayVideo();
   } else {
     setStopVideo();
     myVideoStream.getVideoTracks()[0].enabled = true;
+  }
   }
 };
 
@@ -328,9 +341,9 @@ const startShareScreen = async () => {
     let videoTrack = stream.getVideoTracks()[0];
     currentPeer.forEach((peer) => {
       var sender = peer.getSenders().find((s) => s.track.kind === "video");
-      sender.replaceTrack(videoTrack);
-      myVideo.srcObject = stream;
+      sender.addTrack(videoTrack);
     });
+    myVideo.srcObject = stream;
     const html = `<i class="fas fa-eye-slash"></i>
     <span>Stop Share</span>`;
     document.querySelector("#shareScreen").innerHTML = html;
