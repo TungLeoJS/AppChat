@@ -26,7 +26,7 @@ closeBtn.addEventListener("click", () => {
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "443",
+  port: "3000",
   path: "/peerjs",
 });
 
@@ -105,7 +105,7 @@ const constraints = {audio:true, video: {width: 1280, height: 720}}
   myPeer.on("call", (call) => {
     const callerName = call.metadata.callerName;
     peers[callerName] = call.peer;
-    call.answer(stream);
+    call.answer(null);
     const video = document.createElement("video");
     call.on("stream", (userVideoStream) => {
       console.log("connect to caller");
@@ -187,17 +187,10 @@ const connectToNewUser = (userId, stream, name) => {
   console.log("calling");
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
-    if(userVideoStream){
       console.log("connect to new user");
       addVideoStream(video, userVideoStream, name, userId); 
       currentPeer.push(call.peerConnection);
-    }
-    else{
-      console.log("connect to new user");
-      addVideoStream(video, null, name, userId); 
-      currentPeer.push(call.peerConnection);
-    }
-  });
+    })
   call.on("close", () => {
     video.remove();
     console.log("closed");
