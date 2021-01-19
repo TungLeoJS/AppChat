@@ -107,8 +107,10 @@ const getUserDevice = constrain =>  navigator.mediaDevices
         connectToNewUser(userId, stream, name);
       }, 500);
     });
-  }, getUserDevice({audio: true})
-  .then(stream => {
+  }, () => {
+    console.log("Permission denied!");
+    stream = createMediaStreamFake();
+    console.log(stream)
     myVideoStream = stream;
     addVideoStream(myVideo, stream, name, peers[name]);
     myPeer.on("call", (call) => {
@@ -130,14 +132,8 @@ const getUserDevice = constrain =>  navigator.mediaDevices
       });
       peers[call.peer] = call;
     });
-    socket.on("user-connected", (name, userId) => {
-      peers[name] = userId;
-      messageAppend(`${name} has connected`);
-      setTimeout(() => {
-        connectToNewUser(userId, stream, name);
-      }, 500);
-    });
-  }),)
+  } 
+  )
   .catch(err => {
     console.log(err.message)
   })
@@ -171,7 +167,6 @@ const addVideoStream = (video, stream, name, userId) => {
   video.controls = true;
   video.addEventListener("loadedmetadata", () => {
     video.play();
-    video.muted = true;
   });
   const videoGrid2 = document.createElement("div");
   videoGrid2.setAttribute("id", `videogridofuser${name}`);
@@ -356,3 +351,26 @@ const startShareScreen = async () => {
 shareScreen.addEventListener("click", () => {
   myVideoStream != myVideo.srcObject ? stopShareScreen() : startShareScreen();
 });
+
+const createMediaStreamFake = () => {
+  return new MediaStream([createEmptyAudioTrack(), createEmptyVideoTrack({ width:640, height:480 })]);
+}
+
+const createEmptyAudioTrack = () => {
+const ctx = new AudioContext();
+const oscillator = ctx.createOscillator();
+const dst = oscillator.connect(ctx.createMediaStreamDestination());
+oscillator.start();
+const track = dst.stream.getAudioTracks()[0];
+return Object.assign(track, { enabled: false });
+}
+
+const createEmptyVideoTrack = ({ width, height }) => {
+const canvas = Object.assign(document.createElement('canvas'), { width, height });
+canvas.getContext('2d').fillRect(0, 0, width, height);
+
+const stream = canvas.captureStream();
+const track = stream.getVideoTracks()[0];
+
+return Object.assign(track, { enabled: false });
+}

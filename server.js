@@ -24,9 +24,9 @@ app.get("/", (req, res) => {
 
 app.get("/:room", (req, res) => {
   res.render("room", { roomName: req.params.room });
-    if (rooms[req.params.room] == null) {
-      rooms[req.params.room] = { users: {} };
-    }
+  if (rooms[req.params.room] == null) {
+    rooms[req.params.room] = { users: {} };
+  }
 });
 
 app.post("/room", (req, res) => {
@@ -35,14 +35,14 @@ app.post("/room", (req, res) => {
 
 io.on("connection", (socket) => {
   socket.on("new-user", (room, name, userId) => {
-    if(rooms[room] == null){
-      rooms[room] = {users: {}}
+    if (rooms[room] == null) {
+      rooms[room] = { users: {} };
     }
     socket.join(room);
     if (Object.values(rooms[room].users).includes(name) == true) {
       console.log("username has existed");
       socket.emit("username-existed");
-    } else{
+    } else {
       rooms[room].users[socket.id] = name;
       socket.to(room).emit("user-connected", name, userId);
       console.log(`user ${rooms[room].users[socket.id]} has connected`);
