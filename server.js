@@ -56,6 +56,11 @@ io.on("connection", (socket) => {
       });
     });
 
+    socket.on("PermissionDenied", userName => {
+      socket.to(room).broadcast.emit("PermissionDeniedAlert", userName)
+      console.log("permission denied")
+    })
+
     socket.on("disconnect", () => {
       socket
         .to(room)

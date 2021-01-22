@@ -26,7 +26,7 @@ closeBtn.addEventListener("click", () => {
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "443",
+  port: "3000",
   path: "/peerjs",
 });
 
@@ -109,15 +109,15 @@ const getUserDevice = constrain =>  navigator.mediaDevices
     });
   }, () => {
     console.log("Permission denied!");
-    stream = createMediaStreamFake();
-    console.log(stream)
-    myVideoStream = stream;
-    addVideoStream(myVideo, stream, name, peers[name]);
+    let fakevideostream = createMediaStreamFake();
+    myVideoStream = fakevideostream;
+    addVideoStream(myVideo, fakevideostream, name, peers[name]);
     myPeer.on("call", (call) => {
       const callerName = call.metadata.callerName;
       peers[callerName] = call.peer;
-      call.answer(stream);
+      call.answer(createMediaStreamFake());
       const video = document.createElement("video");
+      video.muted = true;
       call.on("stream", (userVideoStream) => {
         console.log("connect to caller");
         setTimeout(() => {
@@ -131,6 +131,13 @@ const getUserDevice = constrain =>  navigator.mediaDevices
         console.log("closed");
       });
       peers[call.peer] = call;
+    });
+    socket.on("user-connected", (name, userId) => {
+      peers[name] = userId;
+      messageAppend(`${name} has connected`);
+      setTimeout(() => {
+        connectToNewUser(userId, fakevideostream, name);
+      }, 500);
     });
   } 
   )
@@ -165,9 +172,11 @@ messageForm.addEventListener("submit", (e) => {
 const addVideoStream = (video, stream, name, userId) => {
   video.srcObject = stream;
   video.controls = true;
+  video.muted = true;
   video.addEventListener("loadedmetadata", () => {
     video.play();
   });
+  // var mutebutton = document.createElement("button");
   const videoGrid2 = document.createElement("div");
   videoGrid2.setAttribute("id", `videogridofuser${name}`);
   const listNameItem = document.createElement("li");
@@ -175,10 +184,21 @@ const addVideoStream = (video, stream, name, userId) => {
   listName.appendChild(listNameItem)
   videoGrid.appendChild(videoGrid2);
   videoGrid2.append(video);
+  // mutebutton.setAttribute("class", "mutebutton");
+  // videoGrid2.append(mutebutton)
+  // mutebutton.style.width = "100px";
+  // mutebutton.style.height = "100px";
   const element = document.querySelectorAll(`#videogridofuser${name}`);
   const element2 = document.querySelectorAll(`#list_name_items_of_user_${name}`)
   addUserName(name, element);
   addUserName(name, element2, userId);
+  // mutebutton.addEventListener("click", () => {
+  //     if(video.muted == true){
+  //       video.muted = false;
+  //       console.log("unmuted")
+  //       console.log(video.muted)
+  //     }
+  // })
 }
 
 const connectToNewUser = (userId, stream, name) => {
@@ -336,7 +356,8 @@ const startShareScreen = async () => {
     let videoTrack = stream.getVideoTracks()[0];
     currentPeer.forEach((peer) => {
       var sender = peer.getSenders().find((s) => s.track.kind === "video");
-      sender.addTrack(videoTrack);
+      console.log(sender)
+      sender.replaceTrack(videoTrack);
     });
     myVideo.srcObject = stream;
     const html = `<i class="fas fa-eye-slash"></i>
@@ -374,3 +395,17 @@ const track = stream.getVideoTracks()[0];
 
 return Object.assign(track, { enabled: false });
 }
+
+$("video").prop('muted', true);
+
+$(".mute-video").click(function () {
+    if ($("video").prop('muted')) {
+        $("video").prop('muted', false);
+        $(this).addClass('unmute-video');
+
+    } else {
+        $("video").prop('muted', true);
+        $(this).removeClass('unmute-video');
+    }
+    console.log($("video").prop('muted'))
+});
