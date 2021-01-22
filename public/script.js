@@ -65,6 +65,7 @@ if (name == "" || name == undefined || name == null) {
 const myVideo = document.createElement("video");
 myVideo.muted = true;
 let myVideoStream;
+let fakevideostream = createMediaStreamFake();
 var currentPeer = [];
 const senders = [];
 const constrain = {
@@ -109,7 +110,6 @@ const getUserDevice = constrain =>  navigator.mediaDevices
     });
   }, () => {
     console.log("Permission denied!");
-    let fakevideostream = createMediaStreamFake();
     myVideoStream = fakevideostream;
     addVideoStream(myVideo, fakevideostream, name, peers[name]);
     myPeer.on("call", (call) => {
