@@ -26,7 +26,7 @@ closeBtn.addEventListener("click", () => {
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "443",
+  port: "3000",
   path: "/peerjs",
 });
 
@@ -65,7 +65,7 @@ if (name == "" || name == undefined || name == null) {
 const myVideo = document.createElement("video");
 myVideo.muted = true;
 let myVideoStream;
-let fakevideostream = createMediaStreamFake();
+let fakevideostream;
 var currentPeer = [];
 const senders = [];
 const constrain = {
@@ -79,16 +79,16 @@ const getUserDevice = constrain =>  navigator.mediaDevices
   .then((stream) => {
     console.log(stream)
     myVideoStream = stream;
+    console.log("Camera and mic on!")
     addVideoStream(myVideo, stream, name, peers[name]);
-    console.log(name);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
+      console.log("calling 3")
       const callerName = call.metadata.callerName;
       peers[callerName] = call.peer;
       call.answer(stream);
       const video = document.createElement("video");
-      call.on("stream", (userVideoStream) => {
-        console.log("connect to caller");
+      call.on("stream", userVideoStream => {
         setTimeout(() => {
           addVideoStream(video, userVideoStream, callerName, peers[callerName]);
           currentPeer.push(call.peerConnection);
@@ -110,16 +110,19 @@ const getUserDevice = constrain =>  navigator.mediaDevices
     });
   }, () => {
     console.log("Permission denied!");
+    fakevideostream = createMediaStreamFake();
+    console.log(fakevideostream);
     myVideoStream = fakevideostream;
     addVideoStream(myVideo, fakevideostream, name, peers[name]);
     myPeer.on("call", (call) => {
+      console.log("calling")
       const callerName = call.metadata.callerName;
       peers[callerName] = call.peer;
-      call.answer(createMediaStreamFake());
+      call.answer(fakevideostream);
       const video = document.createElement("video");
       video.muted = true;
       call.on("stream", (userVideoStream) => {
-        console.log("connect to caller");
+        console.log("calling 2")
         setTimeout(() => {
           addVideoStream(video, userVideoStream, callerName, peers[callerName]);
           currentPeer.push(call.peerConnection);
@@ -208,7 +211,8 @@ const connectToNewUser = (userId, stream, name) => {
   const call = myPeer.call(userId, stream, {
     metadata: { callerName: callerName },
   });
-  console.log("calling");
+  console.log("answering")
+  console.log(stream)
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
     console.log("connect to new user");
@@ -349,6 +353,7 @@ const stopShareScreen = async () => {
     sender.replaceTrack(videoTrack);
   });
   myVideo.srcObject = myVideoStream;
+  console.log(createMediaStreamFake());
 };
 
 const startShareScreen = async () => {
@@ -356,7 +361,6 @@ const startShareScreen = async () => {
     let videoTrack = stream.getVideoTracks()[0];
     currentPeer.forEach((peer) => {
       var sender = peer.getSenders().find((s) => s.track.kind === "video");
-      console.log(sender)
       sender.replaceTrack(videoTrack);
     });
     myVideo.srcObject = stream;
