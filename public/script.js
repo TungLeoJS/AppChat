@@ -26,7 +26,7 @@ closeBtn.addEventListener("click", () => {
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "443",
+  port: "3000",
   path: "/peerjs",
 });
 
@@ -91,6 +91,8 @@ const getUserDevice = constrain =>  navigator.mediaDevices
       call.on("stream", userVideoStream => {
         setTimeout(() => {
           addVideoStream(video, userVideoStream, callerName, peers[callerName]);
+          const videoElement = document.getElementById(`videogridofuser${callerName}`);
+          addMuteButton(videoElement, video)
           currentPeer.push(call.peerConnection);
         }, 500);
         peers[call.peer] = call;
@@ -125,6 +127,8 @@ const getUserDevice = constrain =>  navigator.mediaDevices
         console.log("calling 2")
         setTimeout(() => {
           addVideoStream(video, userVideoStream, callerName, peers[callerName]);
+          const videoElement = document.getElementById(`videogridofuser${callerName}`);
+          addMuteButton(videoElement, video)
           currentPeer.push(call.peerConnection);
         }, 500);
         peers[call.peer] = call;
@@ -175,11 +179,9 @@ messageForm.addEventListener("submit", (e) => {
 const addVideoStream = (video, stream, name, userId) => {
   video.srcObject = stream;
   video.controls = true;
-  video.muted = true;
   video.addEventListener("loadedmetadata", () => {
     video.play();
   });
-  // var mutebutton = document.createElement("button");
   const videoGrid2 = document.createElement("div");
   videoGrid2.setAttribute("id", `videogridofuser${name}`);
   const listNameItem = document.createElement("li");
@@ -187,21 +189,10 @@ const addVideoStream = (video, stream, name, userId) => {
   listName.appendChild(listNameItem)
   videoGrid.appendChild(videoGrid2);
   videoGrid2.append(video);
-  // mutebutton.setAttribute("class", "mutebutton");
-  // videoGrid2.append(mutebutton)
-  // mutebutton.style.width = "100px";
-  // mutebutton.style.height = "100px";
   const element = document.querySelectorAll(`#videogridofuser${name}`);
   const element2 = document.querySelectorAll(`#list_name_items_of_user_${name}`)
   addUserName(name, element);
   addUserName(name, element2, userId);
-  // mutebutton.addEventListener("click", () => {
-  //     if(video.muted == true){
-  //       video.muted = false;
-  //       console.log("unmuted")
-  //       console.log(video.muted)
-  //     }
-  // })
 }
 
 const connectToNewUser = (userId, stream, name) => {
@@ -217,6 +208,8 @@ const connectToNewUser = (userId, stream, name) => {
   call.on("stream", (userVideoStream) => {
     console.log("connect to new user");
     addVideoStream(video, userVideoStream, name, userId);
+    const videoElement = document.getElementById(`videogridofuser${name}`);
+    addMuteButton(videoElement, video)
     currentPeer.push(call.peerConnection);
   });
   call.on("close", () => {
@@ -400,16 +393,22 @@ const track = stream.getVideoTracks()[0];
 return Object.assign(track, { enabled: false });
 }
 
-$("video").prop('muted', true);
-
-$(".mute-video").click(function () {
-    if ($("video").prop('muted')) {
-        $("video").prop('muted', false);
-        $(this).addClass('unmute-video');
-
-    } else {
-        $("video").prop('muted', true);
-        $(this).removeClass('unmute-video');
-    }
-    console.log($("video").prop('muted'))
-});
+const addMuteButton = (videoElement, video) => {
+  var mutebutton = document.createElement("button");
+  var i = document.createElement("i");
+          mutebutton.setAttribute("class", "fas fa-volume-mute");
+          videoElement.append(mutebutton)
+          mutebutton.append(i)
+          mutebutton.style.width = "30px";
+          mutebutton.style.height = "30px";
+          mutebutton.style.border = "none";
+          mutebutton.addEventListener("click", () => {
+              if(video.muted == true){
+                video.muted = !video.muted;
+                mutebutton.style.background = "red";
+              }else{
+                video.muted = !video.muted;
+                mutebutton.style.background = "white";
+              }
+          })
+}
