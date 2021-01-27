@@ -80,7 +80,7 @@ const getUserDevice = constrain =>  navigator.mediaDevices
     console.log(stream)
     myVideoStream = stream;
     console.log("Camera and mic on!")
-    addVideoStream(myVideo, stream, name, myPeer._id);
+    addVideoStream(myVideo, stream, name, peers[name]);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
       console.log("someone called")
@@ -192,8 +192,10 @@ const addVideoStream = (video, stream, name, userId) => {
   videoGrid2.append(video);
   const element = document.querySelectorAll(`#videogridofuser${name}`);
   const element2 = document.querySelectorAll(`#list_name_items_of_user_${name}`)
-  addUserName(name, element);
-  addUserName(name, element2, peers[name]);
+  setTimeout(() => {
+    addUserName(name, element);
+    addUserName(name, element2, userId);
+  }, 500);
 }
 
 const connectToNewUser = (userId, stream, name) => {
