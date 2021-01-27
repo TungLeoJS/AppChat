@@ -26,7 +26,7 @@ closeBtn.addEventListener("click", () => {
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "443",
+  port: "3000",
   path: "/peerjs",
 });
 
@@ -80,7 +80,7 @@ const getUserDevice = constrain =>  navigator.mediaDevices
     console.log(stream)
     myVideoStream = stream;
     console.log("Camera and mic on!")
-    addVideoStream(myVideo, stream, name, peers[name]);
+    addVideoStream(myVideo, stream, name, myPeer._id);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
       console.log("someone called")
@@ -116,7 +116,7 @@ const getUserDevice = constrain =>  navigator.mediaDevices
     fakevideostream = createMediaStreamFake();
     console.log(fakevideostream);
     myVideoStream = fakevideostream;
-    addVideoStream(myVideo, fakevideostream, name, peers[name]);
+    addVideoStream(myVideo, fakevideostream, name, myPeer._id);
     myPeer.on("call", (call) => {
       console.log("calling")
       const callerName = call.metadata.callerName;
@@ -429,3 +429,4 @@ const addMuteButton = (videoElement, video) => {
               }
           })
 }
+console.log(myPeer)
