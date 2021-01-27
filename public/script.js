@@ -413,8 +413,14 @@ const addMuteButton = (videoElement, video) => {
           mutebutton.style.width = "30px";
           mutebutton.style.height = "30px";
           mutebutton.style.border = "none";
+          if(video.muted == true){
+            mutebutton.style.background = "red";
+          }else{
+            mutebutton.style.background = "white";
+          }
           mutebutton.addEventListener("click", () => {
-              if(video.muted == true){
+            console.log(video.muted)
+              if(video.muted == false){
                 video.muted = !video.muted;
                 mutebutton.style.background = "red";
               }else{
