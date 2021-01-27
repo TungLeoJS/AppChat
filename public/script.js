@@ -26,7 +26,7 @@ closeBtn.addEventListener("click", () => {
 
 const myPeer = new Peer(undefined, {
   host: "/",
-  port: "443",
+  port: "3000",
   path: "/peerjs",
 });
 
@@ -83,10 +83,11 @@ const getUserDevice = constrain =>  navigator.mediaDevices
     addVideoStream(myVideo, stream, name, peers[name]);
     // addUserName(Object.keys(peers)[Object.values(peers).indexOf(myPeer._id)]);
     myPeer.on("call", (call) => {
-      console.log("calling 3")
+      console.log("someone called")
       const callerName = call.metadata.callerName;
       peers[callerName] = call.peer;
       call.answer(stream);
+      console.log("answer with stream")
       const video = document.createElement("video");
       call.on("stream", userVideoStream => {
         setTimeout(() => {
@@ -202,7 +203,7 @@ const connectToNewUser = (userId, stream, name) => {
   const call = myPeer.call(userId, stream, {
     metadata: { callerName: callerName },
   });
-  console.log("answering")
+  console.log("calling")
   console.log(stream)
   const video = document.createElement("video");
   call.on("stream", (userVideoStream) => {
@@ -213,8 +214,13 @@ const connectToNewUser = (userId, stream, name) => {
     currentPeer.push(call.peerConnection);
   });
   call.on("close", () => {
-    video.remove();
-    console.log("closed");
+    if(video != null){
+      video.remove();
+      console.log("closed");
+    }
+    else{
+      console.log("close")
+    }
   });
   peers[userId] = call;
 }
@@ -236,8 +242,13 @@ const addUserName = async (name, element, userId) => {
 const removeName = (name) => {
   const a = document.getElementById(`videogridofuser${name}`);
   const b = document.getElementById(`list_name_items_of_user_${name}`)
-  a.remove();
-  b.remove();
+  if(a != null && b!= null){
+    a.remove();
+    b.remove();
+  }
+  else{
+    console.log("remove name");
+  }
 };
 
 const scrollToBottom = () => {
